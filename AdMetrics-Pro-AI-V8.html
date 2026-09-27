@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdMetrics Pro AI - Real-time E-Commerce Ad Strategy & Store Analyzer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-light {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        ::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 50%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800/80 bg-slate-900/90 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+                    <i class="fa-solid fa-bolt text-white text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-extrabold text-lg tracking-tight gradient-text">ADMETRICS PRO AI</h1>
+                        <span class="bg-indigo-500/20 text-indigo-300 text-[10px] font-extrabold px-2 py-0.5 rounded-md border border-indigo-500/30">PRECISION V6.0</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 font-medium">E-Commerce Growth Intelligence • Anomaly • Opportunity • Learning Engine</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button onclick="checkBackendStatus()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-xl text-slate-300 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-server text-emerald-400"></i>
+                    <span id="apiKeyStatusText">Backend: cek...</span>
+                </button>
+                <span class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-ping"></span>
+                    Engine Aktif
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Modal API Key -->
+    <div id="apiKeyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full p-6 rounded-3xl border border-slate-700 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-white text-base flex items-center gap-2"><i class="fa-solid fa-server text-emerald-400"></i> Backend V3</h3>
+                <button onclick="toggleApiKeyModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">API key Gemini tidak disimpan di browser. Jalankan <b>server.js</b> dan set environment variable <b>GEMINI_API_KEY</b>. Dashboard tetap punya Local Engine sebagai fallback.</p>
+            <button onclick="toggleApiKeyModal(); checkBackendStatus()" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl">Cek Status Backend</button>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- Main Content Container -->
+    <!-- V6 GROWTH INTELLIGENCE -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div class="glass-card rounded-3xl p-5 sm:p-6 border border-cyan-500/20 mb-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+          <div><div class="text-[10px] uppercase tracking-widest text-cyan-300 font-extrabold">V6 Growth Intelligence</div><h2 class="text-xl sm:text-2xl font-extrabold text-white">Business Pulse & Continuous Learning</h2><p class="text-xs text-slate-400 mt-1">Import data nyata, deteksi perubahan, cari peluang, dan simpan learning untuk eksperimen berikutnya.</p></div>
+          <div class="flex gap-2 flex-wrap"><label class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-bold cursor-pointer">Import Metrics CSV<input id="v6CsvInput" type="file" accept=".csv,text/csv" class="hidden" onchange="v6ImportCsv(event)"></label><button onclick="v6RunDiagnosis()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold">Run Diagnosis</button><button onclick="v6SaveSnapshot()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold">Save Snapshot</button></div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3" id="v6Kpis"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+          <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4"><div class="flex justify-between"><h3 class="font-bold text-white text-sm">⚠ Anomalies</h3><span id="v6AnomalyCount" class="text-[10px] text-rose-300"></span></div><div id="v6Anomalies" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
+          <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4"><div class="flex justify-between"><h3 class="font-bold text-white text-sm">🚀 Opportunities</h3><span id="v6OpportunityCount" class="text-[10px] text-emerald-300"></span></div><div id="v6Opportunities" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
+          <div class="bg-slate-950 rounded-2xl border border-slate-800 p-4"><div class="flex justify-between"><h3 class="font-bold text-white text-sm">🧠 Learning Memory</h3><button onclick="v6ClearLearning()" class="text-[10px] text-slate-500 hover:text-rose-300">Clear</button></div><div id="v6Learning" class="mt-3 space-y-2 text-xs text-slate-300"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Tool Input Hero Section -->
+        <div class="glass-card rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden shadow-2xl border-indigo-500/20">
+            <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-20 -top-20 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-4xl mb-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3">
+                    <i class="fa-solid fa-sparkles text-indigo-400"></i>
+                    <span>Analisis Toko, Audit Listing & Setting Iklan Presisi</span>
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2 leading-tight">
+                    Audit Halaman Toko & Strategi Iklan E-Commerce (Toko 0 - High Sales)
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Gunakan Auto-Scan URL Shopee, TikTok Shop, Tokopedia, atau Website. Seluruh aspek (Judul SEO, Gambar Slide, Video Produk, Deskripsi, Profil Toko, Script UGC, hingga Setting Iklan) akan di-audit & diberi rekomendasi perubahan secara instan!
+                </p>
+            </div>
+
+            <!-- Quick Presets -->
+            <div class="mb-6 flex flex-wrap items-center gap-2">
+                <span class="text-xs text-slate-400 font-semibold mr-1"><i class="fa-solid fa-wand-magic"></i> Coba Preset Cepat:</span>
+                <button type="button" onclick="loadPreset('fashion')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">
+                    👟 Sneakers Canvas Pria
+                </button>
+                <button type="button" onclick="loadPreset('skincare')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">
+                    ✨ Skincare Brightening Serum
+                </button>
+                <button type="button" onclick="loadPreset('gadget')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">
+                    🎧 TWS Earphones Bluetooth
+                </button>
+                <button type="button" onclick="loadPreset('food')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg border border-slate-700 transition">
+                    🌶️ Sambal Cumi Botol Premium
+                </button>
+            </div>
+
+            <!-- Form Inputs -->
+            <div class="mb-5 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+  <div class="flex items-start gap-3">
+    <i class="fa-solid fa-shield-halved text-emerald-400 mt-0.5"></i>
+    <div>
+      <p class="text-xs font-bold text-emerald-300">V3 Architecture</p>
+      <p class="text-[11px] text-slate-400 mt-1">AI dipanggil melalui backend, API key tidak disimpan di browser. Jika backend belum aktif, Local Engine tetap digunakan.</p>
+    </div>
+  </div>
+</div>
+
+<form id="analyzerForm" onsubmit="handleRealtimeAnalyze(event)" class="space-y-6">
+                
+                <!-- URL Input with Realtime Auto Extractor -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-indigo-300">Link Toko / Produk E-Commerce (Shopee, TikTok Shop, Tokopedia, Web)</label>
+                        <span id="scanStatusBadge" class="text-[11px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                            <i class="fa-solid fa-microchip mr-1"></i>Local URL Signal Ready
+                        </span>
+                    </div>
+                    <div class="relative rounded-2xl shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-link text-indigo-400"></i>
+                        </div>
+                        <input type="url" id="storeUrl" required 
+                            oninput="onUrlInputChange(this.value)"
+                            placeholder="https://shopee.co.id/Sepatu-Sneakers-Pria-Casual-Canvas-Hitam-i.1234.5678" 
+                            class="w-full pl-11 pr-32 py-4 bg-slate-900/90 border border-slate-700/80 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm sm:text-base">
+                        <div class="absolute inset-y-0 right-1.5 flex items-center">
+                            <button type="button" onclick="autoDetectLink()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-2 rounded-xl transition shadow">
+                                <i class="fa-solid fa-bolt mr-1"></i> Scan Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Description / Details Field -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+                            Detail / Nama Produk Hasil Deteksi <span class="text-indigo-400 font-normal">(Bisa diedit manual)</span>
+                        </label>
+                        <span class="text-[11px] text-slate-400">Memastikan akurasi diagnosa 100%</span>
+                    </div>
+                    <textarea id="productDetailsInput" rows="2" 
+                        placeholder="Contoh: Sepatu Sneakers Pria Bahan Canvas Ringan Busa Empuk, cocok untuk kuliah dan jalan-jalan santai..." 
+                        class="w-full px-4 py-3 bg-slate-900 border border-slate-700/80 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder-slate-500 transition-all"></textarea>
+                </div>
+
+                <!-- Product Detail Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    
+                    <!-- Is New Store Toggle -->
+                    <div class="lg:col-span-1">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Status Toko</label>
+                        <select id="isNewStore" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="true" selected>Toko Baru (0 - 50 Ulasan)</option>
+                            <option value="false">Toko Lama / Scale-Up</option>
+                        </select>
+                    </div>
+
+                    <!-- Platform Selector -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Platform Utama</label>
+                        <select id="platform" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="TikTok Ads & TikTok Shop">TikTok Shop (GMV Max / VSA)</option>
+                            <option value="Shopee In-App Ads">Shopee In-App (Search & Discovery)</option>
+                            <option value="Meta Ads (Instagram & FB)">Meta Ads (Instagram & FB)</option>
+                            <option value="Google Ads & Shopping">Google Shopping & Search</option>
+                        </select>
+                    </div>
+
+                    <!-- Category Selector -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Kategori Produk</label>
+                        <select id="category" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <option value="Fashion & Apparels">Fashion & Apparel</option>
+                            <option value="Beauty & Skincare">Beauty & Skincare</option>
+                            <option value="Gadget & Electronics">Gadget & Elektronik</option>
+                            <option value="Food & Beverages">Makanan & Minuman (F&B)</option>
+                            <option value="Home & Living">Perlengkapan Rumah (Home & Living)</option>
+                            <option value="Health & Supplement">Kesehatan & Suplemen</option>
+                        </select>
+                    </div>
+
+                    <!-- Selling Price -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Harga Jual (Rp)</label>
+                        <input type="number" id="sellingPrice" required placeholder="149000" value="149000"
+                            class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <!-- Product COGS / Modal (HPP) -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Modal HPP (Rp)</label>
+                        <input type="number" id="cogs" required placeholder="55000" value="55000"
+                            class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Unit Economics Controls -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 pt-2">
+                    <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Platform Fee (%)</label><input type="number" id="platformFee" min="0" max="100" step="0.1" value="10" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></div>
+                    <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Affiliate Fee (%)</label><input type="number" id="affiliateFee" min="0" max="100" step="0.1" value="0" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></div>
+                    <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Voucher Seller (%)</label><input type="number" id="sellerDiscount" min="0" max="100" step="0.1" value="0" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></div>
+                    <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Operasional / Order (Rp)</label><input type="number" id="operationalCost" min="0" step="100" value="0" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></div>
+                    <div><label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Target Profit (%)</label><input type="number" id="targetProfit" min="0" max="90" step="1" value="20" class="w-full px-3.5 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"></div>
+                </div>
+
+                <!-- V4 Intelligence Inputs -->
+                <div class="rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-4 space-y-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <div><p class="text-xs font-extrabold text-indigo-300 uppercase tracking-wider">V4 Intelligence Layer</p><p class="text-[11px] text-slate-400 mt-1">Masukkan sampai 3 URL kompetitor. Sistem hanya menandai data yang benar-benar tersedia sebagai evidence.</p></div>
+                        <span class="text-[10px] px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-400">Evidence-first</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <input id="competitorUrl1" type="url" placeholder="URL kompetitor #1" class="w-full px-3 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input id="competitorUrl2" type="url" placeholder="URL kompetitor #2" class="w-full px-3 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <input id="competitorUrl3" type="url" placeholder="URL kompetitor #3" class="w-full px-3 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <textarea id="evidenceNotes" rows="2" placeholder="Evidence manual (opsional): jumlah ulasan, rating, harga kompetitor, CTR, CVR, GMV, stok, promo, atau catatan screenshot..." class="w-full px-3 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- Monthly Budget Slider & Submit Button -->
+                <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="w-full sm:w-1/2">
+                        <div class="flex justify-between text-xs font-medium text-slate-400 mb-1">
+                            <span>Anggaran Iklan Bulanan:</span>
+                            <span id="budgetValue" class="text-indigo-400 font-bold">Rp 6.000.000</span>
+                        </div>
+                        <input type="range" id="monthlyBudget" min="1000000" max="100000000" step="1000000" value="6000000" 
+                            oninput="updateBudgetText(this.value)"
+                            class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                    </div>
+
+                    <button type="submit" id="btnAnalyze" 
+                        class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/25 hover:opacity-95 active:scale-95 transition-all flex items-center justify-center space-x-3">
+                        <i class="fa-solid fa-magnifying-glass-chart text-lg"></i>
+                        <span>Audit Toko & Buat Strategi Penjualan</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading State Indicator -->
+        <div id="loadingState" class="hidden my-12 text-center py-16 glass-card rounded-3xl border border-indigo-500/30">
+            <div class="inline-block relative w-24 h-24 mb-6">
+                <div class="absolute top-0 left-0 w-full h-full border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+                <div class="absolute top-2 left-2 w-20 h-20 border-4 border-rose-500/20 border-b-rose-500 rounded-full animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-indigo-400 font-bold text-xl">
+                    <i class="fa-solid fa-brain animate-pulse"></i>
+                </div>
+            </div>
+            <h3 class="text-xl font-extrabold text-white mb-2">Membedah Detail Toko, Audit Listing & Menyiapkan Setting Iklan...</h3>
+            <p id="loadingStep" class="text-sm text-indigo-300 font-medium animate-pulse">Mengurai URL & merumuskan perubahan judul, visual, deskripsi, dan profil...</p>
+            
+            <div class="max-w-md mx-auto mt-6 bg-slate-900 rounded-full h-2 overflow-hidden p-0.5 border border-slate-800">
+                <div id="progressBar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500 h-full rounded-full transition-all duration-500 w-1/12"></div>
+            </div>
+        </div>
+
+        <!-- Output Dashboard -->
+        <div id="resultsDashboard" class="hidden space-y-8">
+            <!-- V4 COMMAND CENTER -->
+            <section class="glass-card rounded-3xl p-6 sm:p-8 border border-indigo-500/20 shadow-2xl">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                    <div><span class="text-[10px] uppercase tracking-[0.2em] text-indigo-300 font-extrabold">V4 Command Center</span><h3 class="text-2xl font-extrabold text-white mt-1">Evidence → Score → Experiment → Action</h3><p class="text-xs text-slate-400 mt-1">Skor bukan “vonis”; setiap angka diturunkan dari input, unit economics, dan evidence yang tersedia.</p></div>
+                    <div class="flex gap-2"><button onclick="saveV4Snapshot()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-bold">Simpan Snapshot</button><button onclick="renderV4History()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold">History</button></div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-3" id="v4ScoreGrid">
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><p class="text-[10px] text-slate-500 uppercase">Listing</p><p id="v4ScoreListing" class="text-2xl font-extrabold text-white mt-1">—</p><p id="v4ScoreListingNote" class="text-[10px] text-slate-500 mt-1">Evidence</p></div>
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><p class="text-[10px] text-slate-500 uppercase">Economics</p><p id="v4ScoreEconomics" class="text-2xl font-extrabold text-white mt-1">—</p><p id="v4ScoreEconomicsNote" class="text-[10px] text-slate-500 mt-1">Evidence</p></div>
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><p class="text-[10px] text-slate-500 uppercase">Creative</p><p id="v4ScoreCreative" class="text-2xl font-extrabold text-white mt-1">—</p><p id="v4ScoreCreativeNote" class="text-[10px] text-slate-500 mt-1">Evidence</p></div>
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><p class="text-[10px] text-slate-500 uppercase">Offer</p><p id="v4ScoreOffer" class="text-2xl font-extrabold text-white mt-1">—</p><p id="v4ScoreOfferNote" class="text-[10px] text-slate-500 mt-1">Evidence</p></div>
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><p class="text-[10px] text-slate-500 uppercase">Confidence</p><p id="v4Confidence" class="text-2xl font-extrabold text-indigo-300 mt-1">—</p><p id="v4ConfidenceNote" class="text-[10px] text-slate-500 mt-1">Completeness</p></div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-5">
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><h4 class="text-xs font-bold text-white mb-3">Evidence Ledger</h4><div id="v4EvidenceLedger" class="space-y-2 text-[11px]"></div></div>
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><h4 class="text-xs font-bold text-white mb-3">3 Eksperimen Berikutnya</h4><div id="v4Experiments" class="space-y-2 text-[11px]"></div></div>
+                    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><h4 class="text-xs font-bold text-white mb-3">Competitor Matrix</h4><div id="v4CompetitorMatrix" class="space-y-2 text-[11px]"></div></div>
+                </div>
+                <div class="mt-5 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-4"><h4 class="text-xs font-bold text-indigo-300 mb-2">Next Actions</h4><div id="v4NextActions" class="grid md:grid-cols-3 gap-2"></div></div>
+                <div id="v4HistoryPanel" class="hidden mt-5 bg-slate-950 rounded-2xl p-4 border border-slate-800"><div class="flex justify-between items-center mb-3"><h4 class="text-xs font-bold text-white">Audit History</h4><button onclick="document.getElementById('v4HistoryPanel').classList.add('hidden')" class="text-slate-500">×</button></div><div id="v4HistoryList" class="space-y-2 text-[11px]"></div></div>
+            </section>
+
+
+            <!-- MAIN EXPLANATION CARD: Apa yang Dijual & Harus Gimana -->
+            <div class="glass-card p-6 sm:p-8 rounded-3xl border-l-4 border-l-indigo-500 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/80 pb-4">
+                    <div>
+                        <span class="bg-indigo-500/20 text-indigo-300 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-indigo-500/30">
+                            Hasil Diagnosa & Audit AI Toko
+                        </span>
+                        <h3 id="scrapedTitle" class="text-2xl font-black text-white mt-1">Nama Produk Toko</h3>
+                        <p id="scrapedCategory" class="text-xs text-indigo-300 font-medium mt-0.5">Kategori & Platform</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="copyFullReport()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-copy"></i> Copy Ringkasan
+                        </button>
+                        <a id="storeExternalLink" href="#" target="_blank" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+                            <span>Kunjungi Link</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Section 1 & 2: Toko Menjual Apa & Perangkap Boncos -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-indigo-400 font-bold text-sm uppercase tracking-wider">
+                            <i class="fa-solid fa-store"></i>
+                            <span>1. Toko Ini Menjual Apa? (Analisis Produk & Target)</span>
+                        </div>
+                        <p id="scrapedProductWhat" class="text-sm text-slate-200 leading-relaxed">
+                            Menganalisis link produk...
+                        </p>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1">
+                            <strong class="text-indigo-300">Target Audiens Utama:</strong>
+                            <p id="scrapedTargetAudience" class="text-slate-400">Demografi & Karakter Pembeli.</p>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Diagnosa & Titik Kritis -->
+                    <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-rose-400 font-bold text-sm uppercase tracking-wider">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>2. Potensi Perangkap Boncos Toko 0 Data</span>
+                        </div>
+                        <p id="scrapedPitfalls" class="text-sm text-slate-200 leading-relaxed">
+                            Penyebab utama toko ini bisa rugi/boncos jika langsung pasang iklan tanpa persiapan.
+                        </p>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1">
+                            <strong class="text-rose-300">Analisis Keunggulan Produk (USP):</strong>
+                            <p id="scrapedUsp" class="text-slate-400">USP & Keunggulan Produk.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: HARUS GIMANA? -->
+                <div class="bg-emerald-950/30 border border-emerald-500/30 p-5 rounded-2xl space-y-3">
+                    <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-base">
+                        <i class="fa-solid fa-list-check text-xl"></i>
+                        <span>3. HARUS GIMANA? (Roadmap Eksekusi Penjual Toko 0 Sales)</span>
+                    </div>
+                    <div id="scrapedActionPlan" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-200">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metrics Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-emerald-500 relative overflow-hidden">
+                    <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Break-Even ROAS (Aman)</div>
+                    <div id="metricBEP" class="text-3xl font-black text-emerald-400">1.59x</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Batas minimum iklan tidak rugi.</div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-indigo-500 relative overflow-hidden">
+                    <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Target ROAS Profit Agency</div>
+                    <div id="metricTargetROAS" class="text-3xl font-black text-indigo-400">2.38x</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Target agar bisnis untung ~30%.</div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-rose-500 relative overflow-hidden">
+                    <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Max Cost Per Acquisition (CPA)</div>
+                    <div id="metricMaxCPA" class="text-3xl font-black text-rose-400">Rp 94.000</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Biaya iklan maks per 1 penjualan.</div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-500 relative overflow-hidden">
+                    <div class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Batas Tes Iklan Harian</div>
+                    <div id="metricDailyTesting" class="text-3xl font-black text-amber-400">Rp 60.000</div>
+                    <div class="text-[11px] text-slate-400 mt-1">Alokasi tes materi baru per hari.</div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="border-b border-slate-800 flex space-x-2 overflow-x-auto pb-2 scrollbar-none">
+                <button onclick="switchTab('tab-listing-audit')" id="btn-tab-listing-audit" class="tab-btn active px-5 py-3 rounded-xl font-bold text-sm transition-all bg-indigo-600 text-white shadow-lg flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-list-check text-cyan-300"></i>
+                    <span>1. Audit Listing & Toko (Judul, Gambar, Video, Deskripsi)</span>
+                </button>
+                <button onclick="switchTab('tab-platform-ads')" id="btn-tab-platform-ads" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm transition-all text-slate-400 hover:text-white flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-sliders text-amber-300"></i>
+                    <span>2. Playbook Setting Iklan Platform (Shopee & TikTok)</span>
+                </button>
+                <button onclick="switchTab('tab-newstore')" id="btn-tab-newstore" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm transition-all text-slate-400 hover:text-white flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-seedling text-emerald-300"></i>
+                    <span>3. Penawaran & Risk Reversal</span>
+                </button>
+                <button onclick="switchTab('tab-assets')" id="btn-tab-assets" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm transition-all text-slate-400 hover:text-white flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-image text-rose-400"></i>
+                    <span>4. Banner & Mockup Visual</span>
+                </button>
+                <button onclick="switchTab('tab-scripts')" id="btn-tab-scripts" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm transition-all text-slate-400 hover:text-white flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-film text-purple-400"></i>
+                    <span>5. Script UGC & Copywriting</span>
+                </button>
+                <button onclick="switchTab('tab-financial')" id="btn-tab-financial" class="tab-btn px-5 py-3 rounded-xl font-bold text-sm transition-all text-slate-400 hover:text-white flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-calculator text-emerald-400"></i>
+                    <span>6. Rules Anti-Boncos & Kalkulator</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: AUDIT LISTING & PROFIL TOKO (NEW FULL AUDIT FEATURE) -->
+            <div id="tab-listing-audit" class="tab-content space-y-6">
+                <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-cyan-400"></i>
+                                Audit Halaman Produk & Profil Toko (Peningkat Klik & Penjualan)
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">Daftar rekomendasi perubahan spesifik pada Judul, Gambar Cover, Video Produk, Deskripsi, hingga Profil Toko agar pembeli langsung percaya & checkout.</p>
+                        </div>
+                        <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold text-xs rounded-full">
+                            Conversion Booster Audit
+                        </span>
+                    </div>
+
+                    <!-- 1. AUDIT JUDUL PRODUK (BEFORE VS AFTER SEO TITLE) -->
+                    <div class="bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-cyan-500/30 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-heading text-cyan-400 text-lg"></i>
+                                <h4 class="font-extrabold text-white text-base">1. Optimasi Judul Produk (SEO Search & High CTR Formula)</h4>
+                            </div>
+                            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-bold">Algoritma Shopee & TikTok SEO</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <!-- Judul Lama / Standar -->
+                            <div class="bg-slate-950 p-4 rounded-xl border border-rose-500/30 space-y-2">
+                                <div class="flex items-center justify-between text-rose-400 font-bold uppercase text-[10px]">
+                                    <span>❌ Judul Standar Saat Ini:</span>
+                                    <span class="text-slate-500">Rendah Klik</span>
+                                </div>
+                                <p id="titleBefore" class="text-slate-400 italic">"Memuat data..."</p>
+                                <p class="text-[11px] text-rose-300/80 pt-1 border-t border-slate-800">
+                                    <em>Kelemahan:</em> Kurang memuat kata kunci pencarian (SEO), tidak ada garansi/keunggulan utama, dan pembeli tidak merasa ada penawaran menarik.
+                                </p>
+                            </div>
+
+                            <!-- Judul Teroptimasi AI -->
+                            <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/30 space-y-2 relative">
+                                <div class="flex items-center justify-between text-emerald-400 font-bold uppercase text-[10px]">
+                                    <span>✅ Rekomendasi Judul Teroptimasi (Siap Copy):</span>
+                                    <button onclick="copyToClipboard('titleAfter')" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-bold"><i class="fa-solid fa-copy mr-1"></i>Copy Judul</button>
+                                </div>
+                                <p id="titleAfter" class="text-slate-100 font-semibold leading-relaxed">"Memuat data..."</p>
+                                <p class="text-[11px] text-emerald-300/80 pt-1 border-t border-slate-800">
+                                    <em>Keunggulan:</em> Mengikuti formula <strong class="text-white">[Merk/Sertifikasi] + [Kata Kunci Utama] + [Bahan/Keunggulan] + [Promo/Garansi]</strong> untuk mendominasi hasil pencarian.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. AUDIT GAMBAR COVER & GALERI SLIDE (SLIDE 1 TO SLIDE 5) -->
+                    <div class="bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-indigo-500/30 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-images text-indigo-400 text-lg"></i>
+                                <h4 class="font-extrabold text-white text-base">2. Panduan Ubah Gambar Galeri Slide 1–5 (Menaikkan CTR s/d 300%)</h4>
+                            </div>
+                            <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded font-bold">Visual Audit Checklist</span>
+                        </div>
+
+                        <div id="imageGalleryAuditGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+
+                    <!-- 3. AUDIT VIDEO PRODUK HALAMAN STORE & DESKRIPSI -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Video Showcase Audit -->
+                        <div class="bg-slate-900/90 p-5 rounded-2xl border border-purple-500/30 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="font-extrabold text-white text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-play text-purple-400"></i>
+                                    3. Rekomendasi Video Produk Halaman Store
+                                </h4>
+                                <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-bold">Durasi 15-30 Detik</span>
+                            </div>
+                            <ul id="videoAuditTips" class="space-y-2 text-xs text-slate-300">
+                                <!-- Populated dynamically by JS -->
+                            </ul>
+                        </div>
+
+                        <!-- Profil Toko & Trust Audit -->
+                        <div class="bg-slate-900/90 p-5 rounded-2xl border border-amber-500/30 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="font-extrabold text-white text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-store text-amber-400"></i>
+                                    4. Audit Profil Toko & Kepercayaan (Trust Booster)
+                                </h4>
+                                <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-bold">Star Seller / Mall Setup</span>
+                            </div>
+                            <ul id="storeProfileTips" class="space-y-2 text-xs text-slate-300">
+                                <!-- Populated dynamically by JS -->
+                            </ul>
+                        </div>
+
+                    </div>
+
+                    <!-- 4. TEMPLATE DESKRIPSI PRODUK TEROPTIMASI SIAP PASTE -->
+                    <div class="bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-emerald-500/30 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-file-lines text-emerald-400 text-lg"></i>
+                                <h4 class="font-extrabold text-white text-base">5. Template Deskripsi Produk Teroptimasi (High-Converting Copy)</h4>
+                            </div>
+                            <button onclick="copyToClipboard('optimizedDescription')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow transition">
+                                <i class="fa-solid fa-copy mr-1"></i> Copy Deskripsi
+                            </button>
+                        </div>
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                            <pre id="optimizedDescription" class="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed">Memuat data deskripsi teroptimasi...</pre>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAB 2: STEP BY STEP PLATFORM ADS SETTING FOR ZERO DATA STORE -->
+            <div id="tab-platform-ads" class="tab-content space-y-6 hidden">
+                <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-amber-400"></i>
+                                Panduan Settingan Iklan Presisi Toko 0 Data (Shopee & TikTok Shop)
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">Langkah demi langkah mengatur kampanye iklan saat toko Anda belum memiliki histori transaksi dan piksel masih kosong.</p>
+                        </div>
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-full">
+                            Zero-Data Blueprint
+                        </span>
+                    </div>
+
+                    <!-- Platform Selector Switcher Inside Tab -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- SHOPEE IN-APP ADS PLAYBOOK -->
+                        <div class="bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-orange-500/30 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-bag-shopping text-orange-400 text-xl"></i>
+                                    <h4 class="font-extrabold text-white text-base">Shopee In-App Ads Setup</h4>
+                                </div>
+                                <span class="text-[10px] bg-orange-500/20 text-orange-300 border border-orange-500/30 px-2 py-0.5 rounded font-bold">Cold Start Formula</span>
+                            </div>
+
+                            <div class="space-y-3 text-xs">
+                                <!-- Step 1 -->
+                                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                                    <div class="flex items-center justify-between text-orange-400 font-bold">
+                                        <span>Langkah 1: Iklan Pencarian Produk (Search Ads)</span>
+                                        <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Wajib Awal</span>
+                                    </div>
+                                    <p class="text-slate-300 mt-1"><strong>PILIH MODE MANUAL</strong> (Jangan Pilih Otomatis agar budget tidak dihabiskan algoritma pada kata kunci umum).</p>
+                                    <ul class="list-disc list-inside text-slate-400 space-y-1 mt-1">
+                                        <li><strong>Kata Kunci:</strong> Pilih 5 - 10 kata kunci spesifik (Long-tail Keywords) sesuai nama produk Anda: <span id="shopeeKeywords" class="text-orange-300 italic font-mono">"sepatu sneakers pria canvas hitam"</span>.</li>
+                                        <li><strong>Tipe Pencocokan:</strong> Gunakan <em>Pencocokan Spesifik (Exact Match)</em> agar iklan hanya muncul pada pembeli niat tinggi.</li>
+                                        <li><strong>Harga Bid Awal:</strong> Pasang bid konservatif di angka <strong>Rp 300 - Rp 500 / klik</strong>.</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                                    <div class="flex items-center justify-between text-orange-400 font-bold">
+                                        <span>Langkah 2: Iklan Produk Serupa (Discovery Ads)</span>
+                                        <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Pelengkap Trafik</span>
+                                    </div>
+                                    <p class="text-slate-300">Aktifkan untuk memunculkan produk Anda di bawah produk kompetitor yang sudah laris.</p>
+                                    <ul class="list-disc list-inside text-slate-400 space-y-1 mt-1">
+                                        <li><strong>Lokasi Penayangan:</strong> Utamakan <em>"Kamu Mungkin Juga Suka"</em> dan <em>"Rekomendasi Utama"</em>.</li>
+                                        <li><strong>Bid Modal:</strong> Rp 200 - Rp 350 / klik. Tingkat Konversi relatif tinggi jika harga produk Anda lebih murah dari kompetitor.</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                                    <div class="flex items-center justify-between text-orange-400 font-bold">
+                                        <span>Langkah 3: Trik Dongkrak Konversi Shopee (0 Ulasan)</span>
+                                    </div>
+                                    <p class="text-slate-300">Selesaikan syarat pendukung sebelum iklan dinyalakan:</p>
+                                    <ul class="list-disc list-inside text-slate-400 space-y-1 mt-1">
+                                        <li>Pasang voucher <strong>"Voucher Ikuti Toko"</strong> (Diskon 10-15%).</li>
+                                        <li>Daftarkan toko ke program <strong>Bebas Ongkir Extra</strong> & <strong>Cashback Extra</strong>.</li>
+                                        <li>Gunakan bingkai/frame promo menarik pada foto produk utama slide 1.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TIKTOK SHOP ADS PLAYBOOK -->
+                        <div class="bg-slate-900/90 p-5 sm:p-6 rounded-2xl border border-cyan-500/30 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-brands fa-tiktok text-cyan-400 text-xl"></i>
+                                    <h4 class="font-extrabold text-white text-base">TikTok Shop Ads Setup</h4>
+                                </div>
+                                <span class="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded font-bold">Algoritma Zero-Pixel</span>
+                            </div>
+
+                            <div class="space-y-3 text-xs">
+                                <!-- Step 1 -->
+                                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                                    <div class="flex items-center justify-between text-cyan-400 font-bold">
+                                        <span>Langkah 1: Tipe Kampanye (GMV Max / Custom VSA)</span>
+                                        <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Pilih Salah Satu</span>
+                                    </div>
+                                    <p class="text-slate-300">Gunakan <strong>GMV Max (Product Shopping Ads)</strong> atau <strong>Video Shopping Ads (VSA)</strong> dengan tujuan kampanye <em>Product Sales (Shop Purchases)</em>.</p>
+                                    <ul class="list-disc list-inside text-slate-400 space-y-1 mt-1">
+                                        <li><strong>Mode GMV Max:</strong> Pilih produk spesifik Anda, bukan seluruh toko. Let TikTok AI optimize automated bidding.</li>
+                                        <li><strong>Mode Custom VSA:</strong> Pilih <em>Optimization Goal: Complete Payment (Pembelian)</em>.</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                                    <div class="flex items-center justify-between text-cyan-400 font-bold">
+                                        <span>Langkah 2: Penargetan Audiens (Targeting)</span>
+                                    </div>
+                                    <p class="text-slate-300"><strong>GUNAKAN BROAD TARGETING (OPEN TARGETING)</strong> saat toko masih 0 data.</p>
+                                    <ul class="list-disc list-inside text-slate-400 space-y-1 mt-1">
+                                        <li><strong>Lokasi:</strong> Indonesia. Umur: 18 - 44 Tahun.</li>
+                                        <li><strong>Minat (Interest):</strong> Boleh dikosongkan (Broad Target). Biarkan video iklan (UGC) yang menyaring calon pembeli secara alami via 3 detik pertama.</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1">
+                                    <div class="flex items-center justify-between text-cyan-400 font-bold">
+                                        <span>Langkah 3: Bidding & Alokasi Budget Harian</span>
+                                    </div>
+                                    <p class="text-slate-300">Jangan kunci Target ROAS terlalu tinggi pada hari ke-1!</p>
+                                    <ul class="list-disc list-inside text-slate-400 space-y-1 mt-1">
+                                        <li><strong>Bidding Strategy:</strong> Pilih <em>Lowest Cost / Maximize GMV</em> agar sistem segera menemukan pembeli pertama.</li>
+                                        <li><strong>Daily Budget Adset:</strong> Rp 50.000 - Rp 100.000 / adset / hari.</li>
+                                        <li><strong>Kreatif Adset:</strong> Masukkan 3-5 variasi video UGC (Formula PAS & Unboxing dari Tab 5) dalam 1 adset.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: New Store Playbook -->
+            <div id="tab-newstore" class="tab-content space-y-6 hidden">
+                <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-rocket text-indigo-400"></i>
+                                Formula Toko Baru Khusus Produk Ini
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">Mengatasi keraguan pembeli akibat toko belum memiliki banyak ulasan (Zero Social Proof).</p>
+                        </div>
+                        <span id="storeStatusBadge" class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-full">
+                            Risk Reversal Activated
+                        </span>
+                    </div>
+
+                    <!-- 3 Pillars tailored to product -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-lg">
+                                1
+                            </div>
+                            <h4 class="font-extrabold text-white text-base">Atasi Keraguan Spesifik</h4>
+                            <p class="text-xs text-slate-300">Penghilang rasa takut yang disesuaikan khusus untuk jenis produk Anda:</p>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-indigo-300 space-y-1">
+                                <strong>Risk Reversal Wajib:</strong>
+                                <ul class="list-disc list-inside text-slate-400 space-y-1 mt-1" id="listRiskReversal">
+                                    <li>Memuat data...</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold text-lg">
+                                2
+                            </div>
+                            <h4 class="font-extrabold text-white text-base">Formulasi Bundling & Offer</h4>
+                            <p class="text-xs text-slate-300">Naikkan nilai transaksi rata-rata (AOV) agar margin sanggup menutup biaya iklan:</p>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-purple-300 space-y-1">
+                                <strong>Rekomendasi Paket Bundling:</strong>
+                                <p id="offerRecommendation" class="text-slate-300 font-mono mt-1">Memuat data...</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-3">
+                            <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold text-lg">
+                                3
+                            </div>
+                            <h4 class="font-extrabold text-white text-base">Taktik Seeding Testimoni Awal</h4>
+                            <p class="text-xs text-slate-300">Dapatkan ulasan nyata pertama sebelum membuang budget iklan besar:</p>
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-rose-300 space-y-1">
+                                <strong>Langkah Cepat:</strong>
+                                <p id="seedingStrategy" class="text-slate-400 mt-1">Kirim produk ke mikro affiliate creator untuk dijadikan asset iklan Spark Ads.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: AI Visual Asset Studio -->
+            <div id="tab-assets" class="tab-content space-y-6 hidden">
+                <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-rose-400"></i>
+                                Live Interactive Visual Banner Studio
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">Preview banner promosi langsung terdistribusi sesuai nama produk, harga, dan diskon toko Anda.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="renderLiveAdBanners()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-2">
+                                <i class="fa-solid fa-rotate mr-1"></i> Refresh Mockup Visual
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Visual Interactive Banners Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Banner 1: Live Interactive Canvas Render -->
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">Visual 1: Live Interactive Ad Banner</span>
+                                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Render Canvas 1:1</span>
+                            </div>
+                            
+                            <!-- Canvas Container -->
+                            <div class="relative aspect-square bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-800">
+                                <canvas id="bannerCanvas1" width="500" height="500" class="w-full h-full object-cover rounded-xl"></canvas>
+                            </div>
+
+                            <div class="space-y-2 text-xs">
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">Prompt Gemini / Midjourney Visual Direction:</span>
+                                    <p id="adPrompt1" class="text-slate-400 font-mono text-[11px]">Memuat prompt...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Banner 2: Live Secondary Layout Canvas Render -->
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Visual 2: Lifestyle Product Banner</span>
+                                <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded">Render Canvas 1:1</span>
+                            </div>
+                            
+                            <!-- Canvas Container 2 -->
+                            <div class="relative aspect-square bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-800">
+                                <canvas id="bannerCanvas2" width="500" height="500" class="w-full h-full object-cover rounded-xl"></canvas>
+                            </div>
+
+                            <div class="space-y-2 text-xs">
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">Prompt Gemini / Midjourney Visual Direction:</span>
+                                    <p id="adPrompt2" class="text-slate-400 font-mono text-[11px]">Memuat prompt...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: Script UGC & Copywriting -->
+            <div id="tab-scripts" class="tab-content space-y-6 hidden">
+                <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+                    <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-clapperboard text-purple-400"></i>
+                        Script UGC Video TikTok / Reels & Text Copywriting Iklan
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Script 1 -->
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">Formula PAS (Problem - Agitate - Solution)</span>
+                                <button onclick="copyToClipboard('script1Text')" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold"><i class="fa-solid fa-copy mr-1"></i>Copy</button>
+                            </div>
+                            <div id="script1Text" class="space-y-2 text-xs">
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">🪝 Detik 0-3 Hook Visual & Suara:</span>
+                                    <p id="scriptHook1" class="text-slate-200 italic">"Memuat data..."</p>
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">🔥 Detik 3-8 Agitate Masalah:</span>
+                                    <p id="scriptAgitate1" class="text-slate-300">Memuat data...</p>
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">💡 Detik 8-15 Solusi & CTA Penawaran:</span>
+                                    <p id="scriptSolution1" class="text-slate-300">Memuat data...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Script 2 -->
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Formula Unboxing & Honest Review</span>
+                                <button onclick="copyToClipboard('script2Text')" class="text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold"><i class="fa-solid fa-copy mr-1"></i>Copy</button>
+                            </div>
+                            <div id="script2Text" class="space-y-2 text-xs">
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">🪝 Detik 0-3 Curiosity Hook:</span>
+                                    <p id="scriptHook2" class="text-slate-200 italic">"Memuat data..."</p>
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">📦 Detik 3-10 Shot Fisik Close-up:</span>
+                                    <p id="scriptUnboxing2" class="text-slate-300">Memuat data...</p>
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <span class="text-indigo-400 font-bold block mb-1">🚀 Detik 10-15 Call to Action:</span>
+                                    <p id="scriptCta2" class="text-slate-300">Memuat data...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Captions Grid -->
+                    <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+                        <h4 class="font-bold text-white text-sm">Opsi Caption / Primary Text Iklan Sesuai Produk</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 relative">
+                                <span class="text-emerald-400 font-bold uppercase text-[10px]">Opsi A: Direct Offer + Risk Reversal</span>
+                                <p id="captionA" class="text-slate-300">Memuat data...</p>
+                                <button onclick="copyToClipboard('captionA')" class="text-[11px] text-indigo-400 font-semibold mt-2 inline-block"><i class="fa-solid fa-copy mr-1"></i>Copy Text</button>
+                            </div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 relative">
+                                <span class="text-purple-400 font-bold uppercase text-[10px]">Opsi B: Storytelling & Problem Solving</span>
+                                <p id="captionB" class="text-slate-300">Memuat data...</p>
+                                <button onclick="copyToClipboard('captionB')" class="text-[11px] text-indigo-400 font-semibold mt-2 inline-block"><i class="fa-solid fa-copy mr-1"></i>Copy Text</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: Rules Anti-Boncos & Interactive Financial Simulator -->
+            <div id="tab-financial" class="tab-content space-y-6 hidden">
+                <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+                    <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-emerald-400"></i>
+                        Kalkulasi Finansial & Simulator RTS COD (Anti-Boncos)
+                    </h3>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Breakdown Per Produk -->
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
+                            <h4 class="font-bold text-indigo-300 border-b border-slate-800 pb-2">Breakdown Matematika Per-Produk</h4>
+                            
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Harga Jual:</span>
+                                <span id="calcPrice" class="font-bold text-white">Rp 149.000</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Modal Produk (HPP):</span>
+                                <span id="calcCogs" class="font-bold text-rose-400">- Rp 55.000</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm border-t border-slate-800 pt-2">
+                                <span class="text-slate-300 font-semibold">Gross Margin Per Produk:</span>
+                                <span id="calcMargin" class="font-bold text-emerald-400">Rp 94.000 (63%)</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Batas Maksimal Biaya Iklan (Max CPA):</span>
+                                <span id="calcMaxCpa" class="font-bold text-amber-400">Rp 94.000</span>
+                            </div>
+
+                            <!-- Interactive RTS & Platform Fee Simulator Sliders -->
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 mt-3">
+                                <div class="text-xs font-bold text-indigo-300 border-b border-slate-800 pb-1">
+                                    <i class="fa-solid fa-sliders mr-1"></i> Simulator Realistis E-Commerce
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                                        <span>Estimasi Biaya Platform (TikTok/Shopee %):</span>
+                                        <span id="feePercentLabel" class="text-white font-bold">10%</span>
+                                    </div>
+                                    <input type="range" id="feePercentSlider" min="2" max="15" value="10" oninput="recalculateFinancials()"
+                                        class="w-full h-1.5 bg-slate-800 rounded appearance-none accent-indigo-500">
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                                        <span>Estimasi Gagal Bayar / Retur COD (RTS %):</span>
+                                        <span id="rtsPercentLabel" class="text-rose-400 font-bold">8%</span>
+                                    </div>
+                                    <input type="range" id="rtsPercentSlider" min="0" max="25" value="8" oninput="recalculateFinancials()"
+                                        class="w-full h-1.5 bg-slate-800 rounded appearance-none accent-rose-500">
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-800/80 flex justify-between items-center text-xs">
+                                    <span class="text-slate-300 font-bold">Net Profit Bersih Setelah Fee & RTS:</span>
+                                    <span id="calcNetProfit" class="text-emerald-400 font-extrabold text-sm">Rp 69.100</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stop Loss Rules -->
+                        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+                            <h4 class="font-bold text-rose-400 border-b border-slate-800 pb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-hand-holding-dollar"></i> Aturan "Stop Loss" Iklan Otomatis
+                            </h4>
+                            <ul class="space-y-3 text-xs text-slate-300">
+                                <li class="flex items-start gap-2.5">
+                                    <span class="bg-rose-500/20 text-rose-400 font-extrabold px-2 py-0.5 rounded text-[10px] shrink-0 mt-0.5">RULE 1</span>
+                                    <span><strong>Matikan Adset (Cut-off):</strong> Jika budget iklan sudah keluar sebesar <strong>1.5x Max CPA</strong> (<span id="rule1Amt" class="font-bold text-rose-300">Rp 141.000</span>) dan belum ada 1 pun sales / checkout, segera matikan adset tersebut.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <span class="bg-amber-500/20 text-amber-400 font-extrabold px-2 py-0.5 rounded text-[10px] shrink-0 mt-0.5">RULE 2</span>
+                                    <span><strong>Batas Minimum CTR (Click-Through Rate):</strong> Jika CTR di bawah <strong>1.2%</strong> setelah 1.000 impressions, ganti thumbnail / 3 detik pertama video.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <span class="bg-emerald-500/20 text-emerald-400 font-extrabold px-2 py-0.5 rounded text-[10px] shrink-0 mt-0.5">RULE 3</span>
+                                    <span><strong>Testing Budget Distribution (70-20-10):</strong> 70% budget untuk adset winning, 20% untuk materi baru, 10% retargeting.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+        <!-- V3 DATA PORTABILITY -->
+        <div class="max-w-7xl mx-auto px-4 mb-6">
+          <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <div><p class="text-xs font-bold text-white">V3 Data Portability</p><p class="text-[11px] text-slate-500">Simpan hasil audit sebagai JSON untuk revisi atau analisis berikutnya.</p></div>
+            <div class="flex gap-2">
+              <button onclick="exportAnalysisJson()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold">Export JSON</button>
+              <label class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold cursor-pointer">Import JSON<input id="importAnalysisFile" type="file" accept="application/json" class="hidden" onchange="importAnalysisJson(event)"></label>
+            </div>
+          </div>
+        </div>
+
+    <script>
+      function exportAnalysisJson() {
+        if (!currentAnalysisData) return showToast('Belum ada hasil audit untuk diexport.', 'info');
+        const blob = new Blob([JSON.stringify({version:'4.0', exportedAt:new Date().toISOString(), analysis:currentAnalysisData}, null, 2)], {type:'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'admetrics-v3-analysis.json'; a.click(); URL.revokeObjectURL(a.href);
+      }
+      function importAnalysisJson(event) {
+        const file = event.target.files?.[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => { try { const data=JSON.parse(reader.result); currentAnalysisData=data.analysis||data; showToast('JSON audit berhasil dimuat ke state V3.', 'success'); } catch(e) { showToast('File JSON tidak valid.', 'info'); } };
+        reader.readAsText(file);
+      }
+    </script>
+
+
+<!-- V5 OPERATING SYSTEM -->
+<section id="v5-os" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+  <div class="glass-card rounded-3xl p-6 sm:p-8 border border-cyan-500/20 space-y-6">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-semibold mb-2">V5 • MARKETING OPERATING SYSTEM</div>
+        <h2 class="text-2xl font-extrabold text-white">Command Center: Data → Diagnosis → Experiment → Learning</h2>
+        <p class="text-xs text-slate-400 mt-1">Satu tempat untuk menyimpan baseline, hasil konten, eksperimen, dan learning produk.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="v5SaveSnapshot()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-bold"><i class="fa-solid fa-floppy-disk mr-1"></i>Save Snapshot</button>
+        <button onclick="v5ExportData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold">Export V5</button>
+        <label class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold cursor-pointer">Import V5<input type="file" accept="application/json" class="hidden" onchange="v5ImportData(event)"></label>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">GMV</span><div id="v5KpiGmv" class="text-lg font-extrabold mt-1">Rp0</div></div>
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">ORDER</span><div id="v5KpiOrders" class="text-lg font-extrabold mt-1">0</div></div>
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">SPEND</span><div id="v5KpiSpend" class="text-lg font-extrabold mt-1">Rp0</div></div>
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">ROAS</span><div id="v5KpiRoas" class="text-lg font-extrabold mt-1">0.00x</div></div>
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">CTR</span><div id="v5KpiCtr" class="text-lg font-extrabold mt-1">0%</div></div>
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">CVR</span><div id="v5KpiCvr" class="text-lg font-extrabold mt-1">0%</div></div>
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">AOV</span><div id="v5KpiAov" class="text-lg font-extrabold mt-1">Rp0</div></div>
+      <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800"><span class="text-[10px] text-slate-500">DATA CONF.</span><div id="v5KpiConf" class="text-lg font-extrabold mt-1">0%</div></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-4">
+        <h3 class="font-bold text-cyan-300">1. Daily Performance Input</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <input id="v5Gmv" type="number" placeholder="GMV" class="v5in"><input id="v5Orders" type="number" placeholder="Order" class="v5in">
+          <input id="v5Spend" type="number" placeholder="Ad Spend" class="v5in"><input id="v5Impressions" type="number" placeholder="Impressions" class="v5in">
+          <input id="v5Clicks" type="number" placeholder="Clicks" class="v5in"><input id="v5AddCart" type="number" placeholder="Add to Cart" class="v5in">
+          <input id="v5Revenue" type="number" placeholder="Revenue" class="v5in"><input id="v5Returns" type="number" placeholder="Returns/RTS" class="v5in">
+        </div>
+        <button onclick="v5AddPerformance()" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-bold">Tambah Data Hari Ini</button>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-4">
+        <h3 class="font-bold text-purple-300">2. Content Lab</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <input id="v5ContentName" placeholder="Nama video" class="v5in"><input id="v5ContentHook" placeholder="Hook / angle" class="v5in">
+          <input id="v5ContentViews" type="number" placeholder="Views" class="v5in"><input id="v5ContentCtr" type="number" step="0.01" placeholder="CTR %" class="v5in">
+          <input id="v5ContentOrders" type="number" placeholder="Order" class="v5in"><input id="v5ContentGmv" type="number" placeholder="GMV" class="v5in">
+        </div>
+        <button onclick="v5AddContent()" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 rounded-xl text-xs font-bold">Simpan Konten</button>
+        <div id="v5ContentTable" class="space-y-2 max-h-48 overflow-auto"></div>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-4">
+        <h3 class="font-bold text-amber-300">3. Experiment Lab</h3>
+        <input id="v5ExpName" placeholder="Nama eksperimen" class="v5in w-full">
+        <input id="v5ExpHypothesis" placeholder="Hipotesis" class="v5in w-full">
+        <div class="grid grid-cols-2 gap-3"><input id="v5ExpMetric" placeholder="Primary metric" class="v5in"><input id="v5ExpGuardrail" placeholder="Guardrail" class="v5in"></div>
+        <button onclick="v5AddExperiment()" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 rounded-xl text-xs font-bold">Buat Eksperimen</button>
+        <div id="v5ExperimentTable" class="space-y-2 max-h-48 overflow-auto"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-emerald-300">Learning Memory</h3><button onclick="v5GenerateLearning()" class="text-[11px] px-3 py-1.5 bg-emerald-600 rounded-lg font-bold">Generate Learning</button></div>
+        <div id="v5Learning" class="space-y-2 text-xs text-slate-300"><div class="text-slate-500">Belum ada learning.</div></div>
+      </div>
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-rose-300">Next Actions</h3><button onclick="v5GenerateStrategy()" class="text-[11px] px-3 py-1.5 bg-rose-600 rounded-lg font-bold">Generate Strategy</button></div>
+        <div id="v5Actions" class="space-y-2 text-xs text-slate-300"><div class="text-slate-500">Masukkan data lalu generate strategy.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>.v5in{width:100%;padding:.65rem .8rem;background:#020617;border:1px solid #334155;border-radius:.75rem;color:#fff;font-size:.75rem;outline:none}.v5in:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.2)}</style>
+
+
+<!-- V8 PRODUCTION WORKSPACE -->
+<section id="v8-workspace" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+  <div class="glass-card rounded-3xl p-6 sm:p-8 border border-emerald-500/20 space-y-6">
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold mb-2">V8 • PRODUCTION WORKSPACE</div>
+        <h2 class="text-2xl font-extrabold text-white">Team Operations: Data → Decision → Task → Result</h2>
+        <p class="text-xs text-slate-400 mt-1">Workspace untuk Owner, Admin, Digital Marketing, dan Content Creator. AI memberi rekomendasi; manusia tetap approve eksekusi.</p>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <span id="v8SessionBadge" class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-400">Offline / belum login</span>
+        <button onclick="v8LoginDemo()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-bold">Login Demo</button>
+        <button onclick="v8Sync()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold">Sync Server</button>
+        <button onclick="v8ExportWorkspace()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-bold">Export Workspace</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3" id="v8Kpis"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between"><h3 class="font-bold text-cyan-300">Workspace</h3><span id="v8Role" class="text-[10px] px-2 py-1 rounded-lg bg-cyan-500/10 text-cyan-300">VIEWER</span></div>
+        <input id="v8StoreName" class="v8in" placeholder="Nama store / brand">
+        <select id="v8RoleSelect" class="v8in"><option value="owner">Owner</option><option value="admin">Admin</option><option value="marketer">Digital Marketing</option><option value="creator">Content Creator</option><option value="viewer">Viewer</option></select>
+        <button onclick="v8CreateWorkspace()" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-bold">Buat / Pilih Workspace</button>
+        <div class="text-[10px] text-slate-500">Permission backend aktif: task, metrics, approval, dan settings dibatasi berdasarkan role.</div>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-3">
+        <h3 class="font-bold text-amber-300">Task & Approval</h3>
+        <input id="v8TaskTitle" class="v8in" placeholder="Pekerjaan nyata, contoh: revisi 3 hook">
+        <div class="grid grid-cols-2 gap-3"><select id="v8TaskAssignee" class="v8in"><option value="owner">Owner</option><option value="admin">Admin</option><option value="marketer">Digital Marketing</option><option value="creator">Content Creator</option></select><select id="v8TaskPriority" class="v8in"><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div>
+        <input id="v8TaskDue" type="date" class="v8in">
+        <button onclick="v8AddTask()" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 rounded-xl text-xs font-bold">Create Task</button>
+        <div id="v8TaskList" class="space-y-2 max-h-56 overflow-auto"></div>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between"><h3 class="font-bold text-rose-300">Alerts & Decision Queue</h3><button onclick="v8GenerateActions()" class="text-[11px] px-3 py-1.5 bg-rose-600 rounded-lg font-bold">Generate</button></div>
+        <div id="v8Alerts" class="space-y-2 text-xs"></div>
+        <div id="v8DecisionQueue" class="space-y-2 text-xs"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-purple-300">Integrations</h3><span class="text-[10px] text-slate-500">No fake live connection</span></div>
+        <div id="v8Connectors" class="space-y-2"></div>
+        <p class="text-[10px] text-slate-500 mt-3">Connector status menunjukkan kesiapan/configuration, bukan klaim bahwa data marketplace sudah otomatis tertarik.</p>
+      </div>
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-emerald-300">Automation Rules</h3><button onclick="v8ToggleAutomation()" class="text-[11px] px-3 py-1.5 bg-emerald-600 rounded-lg font-bold">Toggle</button></div>
+        <div id="v8Automation" class="space-y-2 text-xs"></div>
+      </div>
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-sky-300">Audit Log</h3><button onclick="v8RefreshAudit()" class="text-[11px] px-3 py-1.5 bg-sky-600 rounded-lg font-bold">Refresh</button></div>
+        <div id="v8Audit" class="space-y-2 max-h-52 overflow-auto text-[11px]"></div>
+      </div>
+    </div>
+
+    <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3"><div><h3 class="font-bold text-white">Owner Dashboard</h3><p class="text-xs text-slate-500">Ringkasan yang bisa dipakai owner tanpa harus mengerjakan detail operasional.</p></div><button onclick="v8GenerateOwnerBrief()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold">Generate Owner Brief</button></div>
+      <div id="v8OwnerBrief" class="grid md:grid-cols-3 gap-3 mt-4 text-xs"><div class="v8brief">Belum ada brief.</div></div>
+    </div>
+  </div>
+</section>
+<style>.v8in{width:100%;padding:.65rem .8rem;background:#020617;border:1px solid #334155;border-radius:.75rem;color:#fff;font-size:.75rem;outline:none}.v8in:focus{border-color:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,.16)}.v8brief{padding:.9rem;border:1px solid #1e293b;background:#020617;border-radius:1rem;min-height:80px}</style>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-900/50 py-6 text-center text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 AdMetrics Pro AI Agency Engine. Precision E-Commerce Diagnostic & Store Listing Auditor.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Script -->
+    <script>
+        // Global State
+        let currentAnalysisData = null;
+        let backendOnline = false;
+        const V3_CONFIG = { apiBase: window.location.protocol === 'file:' ? 'http://localhost:8787' : '' };
+
+        async function checkBackendStatus() {
+            const label = document.getElementById('apiKeyStatusText');
+            try {
+                const r = await fetch(`${V3_CONFIG.apiBase}/api/health`, { cache: 'no-store' });
+                const info = await r.json(); backendOnline = !!r.ok;
+                if (label) label.textContent = backendOnline ? (info.ai ? `AI: Online • ${info.model}` : 'Backend: Online • Local') : 'Backend: Offline';
+                showToast(backendOnline ? (info.ai ? 'Backend + Gemini aktif.' : 'Backend aktif, Gemini key belum diset.') : 'Backend belum aktif; Local Engine tetap bisa dipakai.', backendOnline ? 'success' : 'info');
+            } catch (_) {
+                backendOnline = false;
+                if (label) label.textContent = 'Backend: Offline';
+                showToast('Backend belum aktif; Local Engine tetap bisa dipakai.', 'info');
+            }
+        }
+
+        async function requestV3AI(input) {
+            if (!backendOnline) return null;
+            const r = await fetch(`${V3_CONFIG.apiBase}/api/analyze`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(input) });
+            if (!r.ok) throw new Error(`Backend HTTP ${r.status}`);
+            const data = await r.json(); return data?.analysis || null;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+        }
+        function safeList(items, renderer) { return (Array.isArray(items) ? items : []).map(renderer).join(''); }
+
+        window.onload = function() { checkBackendStatus(); };
+
+        function toggleApiKeyModal() { document.getElementById('apiKeyModal').classList.toggle('hidden'); }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `px-4 py-3 rounded-xl shadow-xl text-xs font-bold border transition-all duration-300 flex items-center gap-2 pointer-events-auto ${
+                type === 'success' ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-slate-900 text-slate-200 border-slate-700'
+            }`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-info text-indigo-400'}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function updateBudgetText(val) {
+            const formatted = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+            document.getElementById('budgetValue').innerText = formatted;
+        }
+
+        function loadPreset(type) {
+            if (type === 'fashion') {
+                document.getElementById('storeUrl').value = "https://shopee.co.id/Sepatu-Sneakers-Canvas-Pria-Casual-Hitam-i.1234.5678";
+                document.getElementById('productDetailsInput').value = "Sepatu Sneakers Pria Bahan Canvas Hitam Sol Karet Empuk Ringan untuk Kuliah & Jalan-Jalan";
+                document.getElementById('category').value = "Fashion & Apparels";
+                document.getElementById('sellingPrice').value = "149000";
+                document.getElementById('cogs').value = "55000";
+            } else if (type === 'skincare') {
+                document.getElementById('storeUrl').value = "https://shopee.co.id/Brightening-Serum-Vitamin-C-Niacinamide-10-Glowing-Spotless-i.8888.9999";
+                document.getElementById('productDetailsInput').value = "Serum Brightening Vitamin C + Niacinamide 10% Menghilangkan Flek Hitam & Mencerahkan Kulit Kusam";
+                document.getElementById('category').value = "Beauty & Skincare";
+                document.getElementById('sellingPrice').value = "119000";
+                document.getElementById('cogs').value = "32000";
+            } else if (type === 'gadget') {
+                document.getElementById('storeUrl').value = "https://tokopedia.com/tws-bluetooth-5.3-wireless-earbuds-noise-cancelling-i.5555.7777";
+                document.getElementById('productDetailsInput').value = "TWS Earphones Bluetooth 5.3 Noise Cancelling Bass Mantap Battery Life 24 Jam Water Resistant";
+                document.getElementById('category').value = "Gadget & Electronics";
+                document.getElementById('sellingPrice').value = "189000";
+                document.getElementById('cogs').value = "68000";
+            } else if (type === 'food') {
+                document.getElementById('storeUrl').value = "https://shopee.co.id/Sambal-Cumi-Asin-Pedas-Gurih-Juara-200g-i.4444.3333";
+                document.getElementById('productDetailsInput').value = "Sambal Cumi Asin Pedas Mantap Cumi Melimpah Botol 200g Halal Tanpa Pengawet Buatan";
+                document.getElementById('category').value = "Food & Beverages";
+                document.getElementById('sellingPrice').value = "45000";
+                document.getElementById('cogs').value = "18000";
+            }
+            showToast("Preset dimuat! Klik 'Audit Toko' untuk melihat rekomendasi.", "success");
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
+                btn.classList.add('text-slate-400');
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
+            activeBtn.classList.remove('text-slate-400');
+
+            if (tabId === 'tab-assets') {
+                renderLiveAdBanners();
+            }
+        }
+
+        // Improved URL Slug Parser & Extractor Engine
+        function parseUrlDetails(url) {
+            if (!url) return null;
+            try {
+                let cleanUrl = url.split('?')[0].split('#')[0];
+                cleanUrl = decodeURIComponent(cleanUrl);
+
+                if (/shope\.ee|vt\.tiktok\.com|tokop\.ed|bit\.ly|t\.co|tinyurl/i.test(cleanUrl)) {
+                    return { isShortLink: true, title: null };
+                }
+
+                let segments = cleanUrl.split('/').filter(s => s.trim().length > 0 && !s.startsWith('http'));
+                if (segments.length === 0) return null;
+
+                const noiseWords = new Set([
+                    'product', 'products', 'item', 'items', 'p', 'shop', 'store', 'view', 
+                    'buy', 'seller', 'tokopedia', 'shopee', 'tiktok', 'blibli', 'lazada', 
+                    'id', 'co', 'com', 'www', 'detail', 'goods', 'dp', 'catalog', 'collections'
+                ]);
+
+                let slugCandidate = '';
+                for (let i = segments.length - 1; i >= 0; i--) {
+                    let seg = segments[i].trim();
+                    if (!/^\d+$/.test(seg) && !noiseWords.has(seg.toLowerCase()) && seg.length > 3) {
+                        slugCandidate = seg;
+                        break;
+                    }
+                }
+
+                if (!slugCandidate) return null;
+
+                slugCandidate = slugCandidate.replace(/-i\.\d+\.\d+/gi, '').replace(/\.\d+$/g, '');
+                slugCandidate = slugCandidate.replace(/[\-_+]/g, ' ');
+
+                let words = slugCandidate.split(/\s+/).filter(w => {
+                    let cleanW = w.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    return cleanW.length > 1 && !noiseWords.has(cleanW) && !/^\d+$/.test(cleanW);
+                });
+
+                if (words.length > 0) {
+                    let extractedTitle = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                    return { isShortLink: false, title: extractedTitle };
+                }
+            } catch (e) {
+                console.warn("URL parse error:", e);
+            }
+            return null;
+        }
+
+        function onUrlInputChange(val) {
+            const res = parseUrlDetails(val);
+            const inputField = document.getElementById('productDetailsInput');
+            const badge = document.getElementById('scanStatusBadge');
+            
+            if (res) {
+                if (res.isShortLink) {
+                    if (badge) badge.innerHTML = `<i class="fa-solid fa-link-slash mr-1 text-amber-400"></i><span class="text-amber-300">Shortlink: Ketik nama produk di bawah</span>`;
+                } else if (res.title) {
+                    inputField.value = res.title;
+                    if (badge) badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1 text-emerald-400"></i><span class="text-emerald-300">Terdeteksi: ${escapeHtml(res.title.substring(0, 22))}...</span>`;
+                }
+            }
+        }
+
+        function autoDetectLink() {
+            const url = document.getElementById('storeUrl').value.trim();
+            if (!url) {
+                showToast("Masukkan URL toko / produk terlebih dahulu!", "error");
+                return;
+            }
+            const res = parseUrlDetails(url);
+            if (res && res.title) {
+                document.getElementById('productDetailsInput').value = res.title;
+                showToast(`Pindaian Berhasil: "${res.title}"`, "success");
+            } else {
+                showToast("Link terbaca. Silakan lengkapi detail nama produk.", "info");
+            }
+        }
+
+        // Custom Heuristic Smart Data Engine tailored to specific product inputs
+        function generateTailoredAnalysis(pName, category, platform, price, cogs, isNewStore) {
+            const pLower = pName.toLowerCase();
+            const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+
+            let productWhat = "";
+            let targetAudience = "";
+            let pitfalls = "";
+            let usp = "";
+            let riskReversalList = [];
+            let offerRecommendation = "";
+            let seedingStrategy = "";
+            let script1Hook = "", script1Agitate = "", script1Solution = "";
+            let script2Hook = "", script2CloseUp = "", script2Cta = "";
+            let captionA = "", captionB = "";
+            let imagePrompt1 = "", imagePrompt2 = "";
+
+            // New Audit Engine Fields
+            let titleBefore = pName;
+            let titleAfter = "";
+            let imageGalleryTips = [];
+            let videoAuditTips = [];
+            let storeProfileTips = [];
+            let optimizedDescription = "";
+
+            if (category.includes("Beauty") || pLower.includes("serum") || pLower.includes("skincare") || pLower.includes("cream")) {
+                productWhat = `Toko ini menjual **${pName}**, produk perawatan wajah/skincare yang menekankan hasil kulit sehat, bersih, dan glowing tanpa iritasi.`;
+                targetAudience = `Wanita & Pria usia 18-35 tahun yang aktif di sosial media, memiliki masalah kulit kusam/flek, dan mencari solusi cepat aman bercore BPOM.`;
+                pitfalls = `Iklan skincare berisiko **BONCOS RUGI** jika Anda hanya menayangkan foto botol/kemasan tanpa menyertakan video uji coba tekstur, izin BPOM jelas, dan bukti pemakaian nyata (UGC Before-After). Pembeli takut alergi atau produk palsu.`;
+                usp = `Tekstur meresap cepat, kandungan bahan aktif tinggi, serta harga kompetitif ${formatIDR(price)}.`;
+                riskReversalList = [
+                    "Sertakan Badge '100% BPOM Verified & Halal' di foto slide pertama.",
+                    "Garansi Retur / Refund jika terjadi iritasi atau kemasan pecah saat pengiriman.",
+                    "Sediakan layanan konsultasi jenis kulit gratis via chat seller."
+                ];
+                offerRecommendation = `Beli 2 Botol Hemat 15% + Bonus Gratis Travel Pouch & Sheet Mask`;
+                seedingStrategy = `Kirimkan sample produk ke 5 mikro-influencer kecantikan di TikTok/Reels untuk membuat video uji pemakaian 7 hari.`;
+
+                script1Hook = `"Kalian juga sempet kesel gak sih, gonta-ganti skincare tapi muka tetep kusam & bertestur?"`;
+                script1Agitate = `Tunjukkan wajah kusam dekat kamera dan keluhan menghabiskan ratusan ribu untuk produk yang tidak cocok.`;
+                script1Solution = `"Cobain deh ${pName} ini. Pas dibilas & dipake konsisten seminggu, teksturnya ringan banget dan muka jadi auto glowing. Klik keranjang mumpung ada promo!"`;
+
+                script2Hook = `"Unboxing serum yang lagi viral banget di TikTok! Beneran sebagus itu gak sih?"`;
+                script2CloseUp = `Tunjukkan penetesan serum ke punggung tangan, perlihatkan tekstur cairan yang mudah meresap dan tidak lengket.`;
+                script2Cta = `"Mumpung toko baru ini lagi kasih diskon spesial promo launching, amankan stok kamu di keranjang kuning!"`;
+
+                captionA = `✨ Wajah Glowing Bebas Kusam dengan ${pName.toUpperCase()}! BPOM Approved & Aman untuk Kulit Sensitif. Promo Spesial Launching Beli 2 Lebih Hemat + Free Ongkir!`;
+                captionB = `Solusi hempas kulit kusam dan flek hitam! Rasakan tekstur ringan yang langsung meresap dalam sekali usap. Order sekarang sebelum promo berakhir!`;
+
+                imagePrompt1 = `Minimalist aesthetic cosmetics ad banner for ${pName}, serum bottle product shot with water drops, soft pastel background, professional studio lighting, 1:1 square`;
+                imagePrompt2 = `Close up lifestyle shot of a woman with glowing healthy skin holding ${pName}, natural sunlight, premium skincare branding mock up, 1:1 square`;
+
+                // Audit Specifics for Beauty/Skincare
+                titleAfter = `[BPOM APPROVED] ${pName} Brightening Serum Glowing 30ml - Solusi Flek Hitam & Kulit Kusam (Bisa COD / Free Ongkir)`;
+                imageGalleryTips = [
+                    { slide: "Slide 1 (Cover Utama)", tip: "Wajib beri Bingkai Frame Diskon, Logo 'BPOM APPROVED', dan teks highlight 'Cepat Meresap Dalam 10 Detik'.", icon: "fa-star text-amber-400" },
+                    { slide: "Slide 2 (Tekstur Real)", tip: "Foto close-up pipet meneteskan serum ke permukaan kulit untuk membuktikan tekstur cair & tidak lengket.", icon: "fa-droplet text-indigo-400" },
+                    { slide: "Slide 3 (Kandungan Active)", tip: "Infografis ikonik yang menjelaskan fungsi Niacinamide / Vitamin C untuk mencerahkan.", icon: "fa-vial text-rose-400" },
+                    { slide: "Slide 4 (Legalitas & BPOM)", tip: "Foto sertifikat BPOM, Halal MUI, dan jaminan aman untuk ibu hamil/menyusui.", icon: "fa-shield-halved text-emerald-400" },
+                    { slide: "Slide 5 (Review Real & Promo)", tip: "Kompilasi testimoni potongan chat kepuasan pembeli + Penawaran 'Beli 2 Gratis Pouch'.", icon: "fa-gift text-purple-400" }
+                ];
+                videoAuditTips = [
+                    "<strong>Detik 0-3:</strong> Tampilkan wajah kusam/flek lalu langsung transisi ke wajah glowing cerah (Hook Visual Tajam).",
+                    "<strong>Detik 4-10:</strong> Tunjukkan proses penetesan serum di wajah dengan suara ASMR tetesan yang jernih.",
+                    "<strong>Detik 11-20:</strong> Bicarakan nomor izin BPOM & sensasi adem saat pemakaian tanpa iritasi.",
+                    "<strong>Detik 21-30:</strong> Tunjukkan stiker 'Garansi Retur 100%' + Call to Action untuk klik keranjang."
+                ];
+                storeProfileTips = [
+                    "<strong>Foto Profil Toko:</strong> Gunakan logo estetis berwarna pastel/putih bersih (estetika klinik kecantikan).",
+                    "<strong>Voucher Toko:</strong> Pasang Voucher 'Diskon Rp 10.000 Minimum Belanja Rp 100.000' tepat di bagian atas toko.",
+                    "<strong>Auto-Reply Chat:</strong> Sediakan template chat konsultasi jenis kulit gratis (Kulit Berminyak / Kering / Jerawat).",
+                    "<strong>Dekorasi Toko:</strong> Buat kategori produk berdasarkan masalah kulit (Contoh: Kategori Paket Brightening, Paket Anti-Acne)."
+                ];
+                optimizedDescription = `✨ ${pName.toUpperCase()} - SOLUSI WAJAH GLOWING BEBAS KUSAM (BPOM CERTIFIED) ✨
+
+Ingin punya kulit wajah yang sehat, cerah alami, dan bebas dari flek hitam tanpa rasa lengket?
+${pName} hadir dengan formulasi khusus yang cepat meresap dan aman digunakan harian!
+
+🌟 KEUNGGULAN UTAMA:
+1. BPOM Approved & Halal MUI (Aman untuk Bumil & Busui).
+2. Tekstur ringan meresap dalam 10 detik tanpa menyumbat pori-pori.
+3. Mengandung konsentrasi bahan aktif mencerahkan kulit secara efektif.
+4. Meringankan flek hitam, noda bekas jerawat, dan meratakan warna kulit.
+
+📜 CARA PEMAKAIAN:
+- Teteskan 2-3 tetes serum pada wajah yang telah dibersihkan.
+- Usap merata dan tepuk perlahan hingga meresap sempurna.
+- Gunakan rutin pagi & malam hari untuk hasil maksimal.
+
+🎁 INFORMASI PENGIRIMAN & GARANSI:
+- Pengiriman setiap hari dengan BUBBLE WRAP TEBAL (Gratis).
+- Garansi 100% Produk Original & Retur Bebas Biaya jika kemasan pecah/rusak.
+
+👉 KLIK "BELI SEKARANG" MUMPUNG PROMO LAUNCHING HARI INI MASIH BERLAKU!`;
+
+            } else if (category.includes("Fashion") || pLower.includes("sepatu") || pLower.includes("baju") || pLower.includes("sneakers") || pLower.includes("kemeja")) {
+                productWhat = `Toko ini menjual **${pName}**, item fashion stylish yang mengombinasikan kenyamanan material berkualitas tinggi dengan desain trendi kekinian.`;
+                targetAudience = `Anak muda & dewasa muda usia 17-30 tahun yang ingin tampil percaya diri saat kuliah, kerja, maupun nongkrong tanpa menguras kantong.`;
+                pitfalls = `Iklan fashion berisiko **BONCOS** karena calon pembeli ragu dengan akurasi ukuran (size chart) serta kualitas jahitan/bahan asli jika hanya melihat gambar manekin statis.`;
+                usp = `Bahan adem & tahan lama, pola pemotongan nyaman, serta harga promo ${formatIDR(price)}.`;
+                riskReversalList = [
+                    "Garansi Tukar Size Gratis 100% jika ukuran kekecilan / kebesaran.",
+                    "Layanan Bayar di Tempat (COD) seluruh Indonesia.",
+                    "Foto & Video 100% Real Pict (Hasil jepretan fisik produk sendiri)."
+                ];
+                offerRecommendation = `Beli 2 Pcs Potongan Rp 25.000 + Bebas Ongkir Seluruh Indonesia`;
+                seedingStrategy = `Kirimkan contoh produk ke 3 creator OOTD untuk dijadikan konten Try-On Mix & Match Outfit.`;
+
+                script1Hook = `"Sering gak sih kalian beli fashion online tapi pas nyampe bahannya tipis & ukurannya ngaco?"`;
+                script1Agitate = `Tunjukkan kekecewaan membandingkan foto baju online shop lain yang tidak sesuai dengan aslinya.`;
+                script1Solution = `"Tenang! Gue nemu ${pName} ini. Bahannya asli tebel adem, jahitannya rapi, dan ada garansi tukar size! Klik tombol di bawah!"`;
+
+                script2Hook = `"Spill outfit & sepatu kece yang sering banget ditanyain pas gue nongkrong!"`;
+                script2CloseUp = `Tunjukkan detail jahitan, tekstur kain/bahan, sol karet empuk, dan tampilan saat dipakai (Try-On).`;
+                script2Cta = `"Stok terbatas banget ya guys! Cek ukuran kamu dan langsung checkout sekarang mumpung diskon!"`;
+
+                captionA = `🔥 PROMO SPESIAL OOTD! ${pName.toUpperCase()} - Tampil Makin Kece & Percaya Diri! Garansi Tukar Size Bebas Biaya + Bisa COD. Klik Beli Sekarang!`;
+                captionB = `Nyaman dipakai seharian dengan bahan premium pilihan. Bikin penampilan kamu makin standout di mana aja. Cek ukuran kamu di keranjang!`;
+
+                imagePrompt1 = `Modern street fashion advertisement banner featuring ${pName}, clean layout, bold discount text overlay, trendy contrast colors, 1:1 square`;
+                imagePrompt2 = `Aesthetic urban lifestyle lookbook photography showcasing ${pName}, soft outdoor shadow, sleek fashion branding overlay, 1:1 square`;
+
+                // Audit Specifics for Fashion
+                titleAfter = `[GARANSI TUKAR SIZE] ${pName} Premium Quality - Nyaman & Ringan Dipakai (Bisa COD / Free Ongkir Extra)`;
+                imageGalleryTips = [
+                    { slide: "Slide 1 (Cover Utama)", tip: "Tampilkan foto produk utuh dengan background kontras bersih + Badge 'GARANSI TUKAR SIZE 100%'.", icon: "fa-shirt text-indigo-400" },
+                    { slide: "Slide 2 (Panduan Size Chart)", tip: "Tabel ukuran (Size Chart) beresolusi tinggi dengan contoh estimasi tinggi & berat badan model.", icon: "fa-ruler-combined text-amber-400" },
+                    { slide: "Slide 3 (Zoom Detail Material)", tip: "Foto jarak dekat (Close-Up) menunjukkan kerapian jahitan, serat kain/bahan, dan elastisitas.", icon: "fa-magnifying-glass-plus text-rose-400" },
+                    { slide: "Slide 4 (Try-On Outfit OOTD)", tip: "Foto model saat memakai produk dalam setting outdoor / cafe (Lookbook inspirasi OOTD).", icon: "fa-camera text-cyan-400" },
+                    { slide: "Slide 5 (Kemasan & Bonus)", tip: "Foto kemasan box/pouch eksklusif + stiker promo beli 2 dapat diskon otomatis.", icon: "fa-box-open text-emerald-400" }
+                ];
+                videoAuditTips = [
+                    "<strong>Detik 0-3:</strong> Tunjukkan gerakan Try-On cepat model saat melangkah / bergaya (360 derajat view).",
+                    "<strong>Detik 4-10:</strong> Tekuk/tarik bahan produk untuk membuktikan kelenturan, kenyamanan, & ketahanan.",
+                    "<strong>Detik 11-20:</strong> Tunjukkan kemudahan mix & match dengan celana / atasan lain.",
+                    "<strong>Detik 21-30:</strong> Tekankan fasilitas 'Bisa Tukar Size Kalau Kekecilan' + Tombol Keranjang Kuning."
+                ];
+                storeProfileTips = [
+                    "<strong>Foto Profil Toko:</strong> Gunakan maskot / logo fashion distro modern dengan tone warna monokrom.",
+                    "<strong>Voucher Toko:</strong> Buat voucher 'Follower Baru Diskon Rp 15.000' untuk meningkatkan followers toko.",
+                    "<strong>Auto-Reply Chat:</strong> Sediakan rekomendasi otomatis size berdasarkan Tinggi & Berat Badan calon pembeli.",
+                    "<strong>Kategori Toko:</strong> Kelompokkan katalog berdasarkan Warna / Ukuran / Koleksi Musim."
+                ];
+                optimizedDescription = `👟 ${pName.toUpperCase()} - PREMIUM OOTD SERIES (GARANSI TUKAR SIZE 100%) 👟
+
+Tampil makin percaya diri & stylish tanpa harus mengorbankan kenyamanan!
+${pName} dirancang khusus menggunakan bahan pilihan berkualitas tinggi yang tahan lama, adem, dan cocok untuk aktivitas harianmu.
+
+🔥 KENAPA HARUS PUNYA PRODUK INI?
+1. 100% REAL PICT - Foto & Video asli jepretan sendiri, barang dijamin sama persis!
+2. GARANSI TUKAR SIZE BEBAS BIAYA jika ukuran yang dipesan kekecilan atau kebesaran.
+3. Jahitan presisi dan kuat, tidak mudah berbulu / rusak meskipun dicuci berulang kali.
+4. Desain ergonomis yang sangat nyaman dipakai seharian untuk kuliah, kerja, maupun nongkrong.
+
+📐 PANDUAN UKURAN (SIZE CHART):
+- Silahkan cek tabel ukuran lengkap di slide gambar ke-2 atau hubungi CS kami via chat untuk konsultasi ukuran idealmu!
+
+🚚 PENGIRIMAN & GARANSI:
+- Siap kirim ke seluruh Indonesia dengan opsi pembayaran COD (Bayar di Tempat).
+- Pengiriman super cepat & dikemas rapi terlindungi.
+
+👉 KLIK "BELI SEKARANG" MUMPUNG STOK DAN VOUCHER DISKON MASIH TERSEDIA!`;
+
+            } else if (category.includes("Food") || pLower.includes("sambal") || pLower.includes("makanan") || pLower.includes("kopi")) {
+                productWhat = `Toko ini menjual **${pName}**, kuliner / makanan siap saji berkualitas tinggi yang mengedepankan cita rasa lezat, kebersihan, dan kepraktisan.`;
+                targetAudience = `Anak kos, pekerja sibuk, ibu rumah tangga, dan pecinta kuliner gurih pedas yang butuh lauk/makanan instan lezat.`;
+                pitfalls = `Iklan makanan berisiko **BONCOS** jika tidak mampu membangkitkan selera makan (gugah selera) melalui visual video lelehan/tekstur makanan yang menggiurkan.`;
+                usp = `Rasa otentik lezat, rempah melimpah, halal, dan dikemas higienis tahan lama.`;
+                riskReversalList = [
+                    "Garansi Ganti Baru jika kemasan bocor atau rusak saat perjalanan.",
+                    "Sertifikasi Halal & Higienis tertera jelas di kemasan.",
+                    "Pengiriman dilapisi Bubble Wrap tebal gratis."
+                ];
+                offerRecommendation = `Paket Bundling 3 Rasa Best Seller Gratis Sendok & Pouch`;
+                seedingStrategy = `Bagi-bagikan sample produk ke food vlogger lokal untuk merekam reaksi pertama (first reaction ASMR).`;
+
+                script1Hook = `"Auto nambah nasi 3 piring gara-gara cobain lauk viral satu ini!"`;
+                script1Agitate = `Tunjukkan rasa bosan dengan lauk harian yang hambar dan repot masak.`;
+                script1Solution = `"Tinggal buka botol ${pName} ini, potongan isiannya melimpah banget & pedasnya pas! Mumpung promo paket isi 3, serbu sekarang!"`;
+
+                script2Hook = `"ASMR Unboxing & Cobain ${pName}! Pedes gurihnya beneran nagih banget!"`;
+                script2CloseUp = `Tunjukkan sendokan makanan di atas nasi hangat asap ngebul secara close-up tajam.`;
+                script2Cta = `"Pesan sekarang sebelum kehabisan! Beli 3 botol jauh lebih hemat free ongkir!"`;
+
+                captionA = `🤤 JUARA PEDAS GURIHNYA! ${pName.toUpperCase()} - Lauk Praktis Bikin Nambah Nasi terus! Halal, Higienis & Garansi Aman Pengiriman. Pesan Sekarang!`;
+                captionB = `Gak perlu repot masak lagi! Tinggal tuang di atas nasi hangat, rasanya langsung bikin nagih. Cek promo paket hemat di keranjang!`;
+
+                imagePrompt1 = `Mouthwatering food product advertisement banner for ${pName}, rich warm lighting, fresh ingredients around the dish, bold promo text, 1:1 square`;
+                imagePrompt2 = `Top down food photography of ${pName} served with steaming hot white rice, rustic wooden table background, 1:1 square`;
+
+                // Audit Specifics for Food
+                titleAfter = `[HALAL & HIGIENIS] ${pName} Rasa Otentik Gurih Pedas - Lauk Praktis Siap Saji (Bisa COD / Paking Bubble Wrap)`;
+                imageGalleryTips = [
+                    { slide: "Slide 1 (Cover Gugah Selera)", tip: "Foto makro close-up makanan di atas nasi hangat asap ngebul + Stiker 'HALAL 100%' & 'TANPA PENGAWET'.", icon: "fa-utensils text-rose-400" },
+                    { slide: "Slide 2 (Isian Melimpah)", tip: "Tunjukkan sendokan produk yang penuh dengan potongan cumi/daging/rempah melimpah.", icon: "fa-bowl-food text-amber-400" },
+                    { slide: "Slide 3 (Kemasan & Segel)", tip: "Foto botol/pouch dengan segel alumunium kedap udara untuk membuktikan higienitas.", icon: "fa-box text-indigo-400" },
+                    { slide: "Slide 4 (PIRT / Halal)", tip: "Sertifikat P-IRT, Halal MUI, dan petunjuk daya tahan simpan (Suhu Ruang vs Kulkas).", icon: "fa-certificate text-emerald-400" },
+                    { slide: "Slide 5 (Paket Hemat 3 Botol)", tip: "Visual penawaran bundling promo Beli 3 Botol Hemat Ongkir + Bonus Sendok Praktis.", icon: "fa-tags text-purple-400" }
+                ];
+                videoAuditTips = [
+                    "<strong>Detik 0-3:</strong> Video ASMR menyendok makanan ke atas nasi hangat dengan efek suara gurih menggiurkan.",
+                    "<strong>Detik 4-10:</strong> Perlihatkan kebersihan dapur produksi & penyegelan botol secara otomatis.",
+                    "<strong>Detik 11-20:</strong> Reaksi orang saat menyantap makanan (ekspresi ketagihan & kenikmatan).",
+                    "<strong>Detik 21-30:</strong> Tampilkan garansi ganti baru jika bocor + CTA pesan sekarang mumpung stok segar."
+                ];
+                storeProfileTips = [
+                    "<strong>Foto Profil Toko:</strong> Foto produk otentik dengan latar warna hangat (Merah / Oranye / Kuning membangkitkan selera makan).",
+                    "<strong>Voucher Toko:</strong> Voucher 'Potongan Ongkir Rp 10.000' karena pembeli makanan sensitif pada biaya kirim.",
+                    "<strong>Auto-Reply Chat:</strong> Informasi otomatis mengenai daya tahan produk (Contoh: Suhu ruang tahan 14 hari, kulkas 1 bulan).",
+                    "<strong>Dekorasi Toko:</strong> Highlight spanduk 'Garansi Produk Fresh Dibuat Setiap Hari'."
+                ];
+                optimizedDescription = `🌶️ ${pName.toUpperCase()} - LAUK PRAKTIS RASA OTENTIK (HALAL & TANPA PENGAWET) 🌶️
+
+Gak sempat masak tapi ingin makan lauk gurih, pedas, dan nikmat?
+${pName} hadir sebagai solusi lauk praktis lezat yang siap disantap kapan saja! Dibuat dari bumbu rempah pilihan dan bahan segar setiap hari.
+
+🔥 KENAPA WAJIB MENCOBA?
+1. RASA OTENTIK & GURIH NAGIH - Bumbu rempah meresap sempurna dengan isian yang melimpah!
+2. 100% HALAL & HIGIENIS - Dikemas dengan segel kedap udara untuk menjaga kesegaran.
+3. PRAKTIS - Tinggal buka kemasan dan langsung nikmati bersama nasi hangat.
+4. TANPA PENGAWET BUATAN - Aman dikonsumsi oleh seluruh anggota keluarga.
+
+📦 PETUNJUK PENYIMPANAN:
+- Suhu Ruang (Segel Utuh): Tahan hingga 14 hari.
+- Masuk Kulkas / Chiller: Tahan hingga 1-2 bulan.
+
+🛡️ GARANSI PENGIRIMAN:
+- Pengiriman dilapisi BUBBLE WRAP TEBAL & DUS GRATIS.
+- Garansi 100% Ganti Baru jika kemasan bocor/rusak saat pengiriman (Wajib sertakan video unboxing).
+
+👉 KLIK "BELI SEKARANG" MUMPUNG ADA PROMO BUNDLING LEBIH HEMAT!`;
+
+            } else {
+                // Gadget / Home / General
+                productWhat = `Toko ini menjual **${pName}**, solusi praktis inovatif yang dirancang untuk mempermudah aktivitas harian pengguna dengan harga terjangkau.`;
+                targetAudience = `Konsumen modern usia 20-40 tahun yang mencari efisiensi, fungsi canggih, dan kualitas produk terjamin.`;
+                pitfalls = `Iklan berisiko **BONCOS** jika fitur utama produk tidak ditunjukkan cara kerjanya secara langsung dalam 3 detik pertama video iklan.`;
+                usp = `Desain ergonomis tahan lama, fitur canggih serbaguna, serta jaminan garansi.`;
+                riskReversalList = [
+                    "Garansi Resmi Tukar Unit Baru 30 Hari.",
+                    "Layanan COD (Bayar saat barang diterima).",
+                    "Uji fungsi produk sebelum dikirim (Quality Check)."
+                ];
+                offerRecommendation = `Beli 1 Set Lengkap Gratis Aksesoris Tambahan + Free Ongkir`;
+                seedingStrategy = `Sediakan produk ke reviewer gadget / perlengkapan rumah untuk membuat video simulasi tes ketahanan.`;
+
+                script1Hook = `"Ternyata barang seharga ${formatIDR(price)} ini bisa bikin hidup jauh lebih praktis!"`;
+                script1Agitate = `Tunjukkan kerepotan melakukan pekerjaan harian secara manual yang memakan waktu.`;
+                script1Solution = `"Pake ${pName} ini semuanya jadi serba cepat & praktis. Kualitasnya kokoh banget! Klik tombol Beli untuk promo hari ini!"`;
+
+                script2Hook = `"Unboxing jujur produk viral yang katanya bermanfaat banget ini!"`;
+                script2CloseUp = `Tunjukkan kemasan, kelengkapan aksesoris, tombol fungsi, dan peragaan saat alat dinyalakan/digunakan.`;
+                script2Cta = `"Dapatkan promo launching terbatas potongan harga khusus hari ini saja!"`;
+
+                captionA = `⚡ SOLUSI PRAKTIS HARIAN! ${pName.toUpperCase()} - Kualitas Terbaik dengan Garansi Resmi Tukar Baru! Pesan Hari Ini & Nikmati Promo Free Ongkir!`;
+                captionB = `Mempermudah hidup kamu sehari-hari! Desain modern, kuat, dan hemat energi. Dapatkan penawaran spesial di keranjang sekarang!`;
+
+                imagePrompt1 = `Sleek technology gadget ad banner for ${pName}, neon glow accents, floating product render, modern studio layout, 1:1 square`;
+                imagePrompt2 = `Professional product showcase photograph of ${pName} in a clean modern home office setting, warm ambient light, 1:1 square`;
+
+                // Audit Specifics for Gadget / General
+                titleAfter = `[GARANSI 30 HARI] ${pName} Premium Series - Canggih, Awet & Praktis (Bisa COD / Quality Checked)`;
+                imageGalleryTips = [
+                    { slide: "Slide 1 (Cover Utama)", tip: "Foto produk tajam berlatar modern + Stiker 'GARANSI RESMI TUKAR BARU' & '100% ORIGINAL'.", icon: "fa-microchip text-cyan-400" },
+                    { slide: "Slide 2 (Infografis Fitur)", tip: "Diagram panah penunjuk fitur-fitur canggih pada fisik produk.", icon: "fa-list-check text-indigo-400" },
+                    { slide: "Slide 3 (Demonstrasi Pakai)", tip: "Foto sebelum vs sesudah memakai alat untuk membuktikan efisiensi kerja produk.", icon: "fa-bolt text-amber-400" },
+                    { slide: "Slide 4 (Kelengkapan Box)", tip: "Foto seluruh isi kemasan (Unit utama, kabel charger, buku panduan, kartu garansi).", icon: "fa-box text-rose-400" },
+                    { slide: "Slide 5 (Quality Control)", tip: "Stiker 'QC PASSED' & sertifikasi keselamatan bahan/listrik.", icon: "fa-circle-check text-emerald-400" }
+                ];
+                videoAuditTips = [
+                    "<strong>Detik 0-3:</strong> Tampilkan simulasi masalah saat bekerja tanpa alat ini, lalu potong cepat ke solusi saat alat dinyalakan.",
+                    "<strong>Detik 4-10:</strong> Sorot lampu indikator, respon tombol, atau material fisik yang kokoh.",
+                    "<strong>Detik 11-20:</strong> Uji tes daya tahan (misal: tes jatuh, tes tahan air, atau tes beban berat).",
+                    "<strong>Detik 21-30:</strong> Tunjukkan stiker kartu garansi 30 hari + Garansi tukar baru jika cacat pabrik."
+                ];
+                storeProfileTips = [
+                    "<strong>Foto Profil Toko:</strong> Logo bernuansa teknologi / modern berlatar gelap atau biru keperakan.",
+                    "<strong>Voucher Toko:</strong> Voucher 'Cashback Extra s/d 10%' untuk menarik pembeli produk elektronik/peralatan.",
+                    "<strong>Auto-Reply Chat:</strong> Informasi klaim garansi otomatis dan jam operasional pengiriman sameday.",
+                    "<strong>Dekorasi Toko:</strong> Buat banner 'Pusat Garansi Resmi & Sparepart Terlengkap'."
+                ];
+                optimizedDescription = `⚡ ${pName.toUpperCase()} - SOLUSI CANGGIH & PRAKTIS HARIAN (GARANSI RESMI 30 HARI) ⚡
+
+Cari produk berkualitas tinggi yang benar-benar mempermudah aktivitas harianmu?
+${pName} hadir dengan teknologi terbaru yang dirancang tahan lama, efisien, dan sangat mudah digunakan!
+
+🔥 KEUNGGULAN UTAMA:
+1. GARANSI RESMI TUKAR UNIT BARU 30 HARI jika terjadi kerusakan/cacat pabrik.
+2. Material premium kokoh, tidak gampang rusak, dan aman digunakan jangka panjang.
+3. Desain ergononis modern yang fleksibel dibawa ke mana saja.
+4. Lolos uji Quality Control (QC PASSED) ketat sebelum dikirim ke pembeli.
+
+📦 KELENGKAPAN PAKET:
+- 1x Unit ${pName} Utama
+- 1x Aksesoris / Kabel Pendukung
+- 1x Buku Panduan Penggunaan
+- 1x Kartu Garansi Resmi Toko
+
+🛡️ JAMINAN PEMBELIAN:
+- 100% Produk Original.
+- Pengiriman dilapisi BUBBLE WRAP TEBAL berlapis-lapis (Gratis).
+- Dukungan pembayaran COD (Bayar saat barang diterima).
+
+👉 KLIK "BELI SEKARANG" UNTUK MENDAPATKAN DISKON LAUNCHING & FREE ONGKIR!`;
+            }
+
+            return {
+                productName: pName,
+                productWhat,
+                targetAudience,
+                pitfalls,
+                usp,
+                riskReversalList,
+                offerRecommendation,
+                seedingStrategy,
+                script1Hook, script1Agitate, script1Solution,
+                script2Hook, script2CloseUp, script2Cta,
+                captionA, captionB,
+                imagePrompt1, imagePrompt2,
+                // Audit properties
+                titleBefore,
+                titleAfter,
+                imageGalleryTips,
+                videoAuditTips,
+                storeProfileTips,
+                optimizedDescription
+            };
+        }
+
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                const text = el.innerText;
+                const dummy = document.createElement("textarea");
+                document.body.appendChild(dummy);
+                dummy.value = text;
+                dummy.select();
+                document.execCommand("copy");
+                document.body.removeChild(dummy);
+                showToast("Berhasil disalin ke clipboard!", "success");
+            }
+        }
+
+        function copyFullReport() {
+            if (!currentAnalysisData) return;
+            const text = `=== ADMETRICS PRO AI STORE REPORT ===\nProduk: ${currentAnalysisData.productName}\nAnalisis: ${currentAnalysisData.productWhat}\nTarget: ${currentAnalysisData.targetAudience}\nRekomendasi Judul: ${currentAnalysisData.titleAfter}\nBreak-Even ROAS: ${currentAnalysisData.bepRoas}x\nMax CPA: ${currentAnalysisData.maxCpaStr}\nRisk Reversal: ${currentAnalysisData.riskReversalList.join(', ')}`;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            showToast("Ringkasan strategi toko berhasil disalin!", "success");
+        }
+
+        // ===== V2 UNIT ECONOMICS ENGINE =====
+        function getFinancialInputs() {
+            const val = id => Number.parseFloat(document.getElementById(id)?.value) || 0;
+            return { price: val('sellingPrice'), cogs: val('cogs'), platformFeePct: val('platformFee'), affiliateFeePct: val('affiliateFee'), sellerDiscountPct: val('sellerDiscount'), operationalCost: val('operationalCost'), targetProfitPct: val('targetProfit'), rtsPct: val('rtsPercentSlider') };
+        }
+
+        function calculateUnitEconomics(input) {
+            const price=input.price, cogs=input.cogs;
+            const discount=price*input.sellerDiscountPct/100;
+            const netSales=price-discount;
+            const platformFee=netSales*input.platformFeePct/100;
+            const affiliateFee=netSales*input.affiliateFeePct/100;
+            const rtsReserve=netSales*input.rtsPct/100*0.30;
+            const contributionBeforeAds=netSales-cogs-platformFee-affiliateFee-input.operationalCost-rtsReserve;
+            const maxCPA=Math.max(contributionBeforeAds,0);
+            const breakEvenROAS=maxCPA>0?netSales/maxCPA:Infinity;
+            const targetCPA=Math.max(contributionBeforeAds*(1-input.targetProfitPct/100),0);
+            const targetROAS=targetCPA>0?netSales/targetCPA:Infinity;
+            return {price,cogs,discount,netSales,platformFee,affiliateFee,rtsReserve,contributionBeforeAds,maxCPA,breakEvenROAS,targetCPA,targetROAS,profitable:contributionBeforeAds>0};
+        }
+
+        function fmtRoas(value) { return Number.isFinite(value) ? value.toFixed(2)+'x' : 'N/A'; }
+
+        function recalculateFinancials() {
+            if (!currentAnalysisData) return;
+            const input=getFinancialInputs();
+            const eco=calculateUnitEconomics(input);
+            currentAnalysisData.economics=eco;
+            const formatIDR=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Math.max(n,0));
+            const fee=document.getElementById('feePercentLabel'), rts=document.getElementById('rtsPercentLabel');
+            if(fee) fee.innerText=input.platformFeePct+'%'; if(rts) rts.innerText=input.rtsPct+'%';
+            const net=document.getElementById('calcNetProfit');
+            if(net){net.innerText=eco.profitable?formatIDR(eco.contributionBeforeAds):'RUGI / TIDAK LAYAK'; net.className=eco.profitable?'text-emerald-400 font-extrabold text-sm':'text-rose-400 font-extrabold text-sm';}
+            const bep=document.getElementById('metricBEP'), target=document.getElementById('metricTargetROAS'), cpa=document.getElementById('metricMaxCPA');
+            if(bep)bep.innerText=fmtRoas(eco.breakEvenROAS); if(target)target.innerText=fmtRoas(eco.targetROAS); if(cpa)cpa.innerText=formatIDR(eco.maxCPA);
+            const margin=document.getElementById('calcMargin'), max=document.getElementById('calcMaxCpa');
+            if(margin)margin.innerText=`${formatIDR(eco.contributionBeforeAds)} (${input.price?((eco.contributionBeforeAds/input.price)*100).toFixed(1):0}%)`;
+            if(max)max.innerText=formatIDR(eco.maxCPA);
+        }
+
+        // Live HTML5 Canvas Visual Ad Banner Renderer
+        function renderLiveAdBanners() {
+            if (!currentAnalysisData) return;
+            
+            const pName = currentAnalysisData.productName || "PRODUK UNGGULAN";
+            const price = currentAnalysisData.price || 149000;
+            const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+            const priceStr = formatIDR(price);
+
+            // Canvas 1: Promo Conversion Layout
+            const c1 = document.getElementById('bannerCanvas1');
+            if (c1 && c1.getContext) {
+                const ctx = c1.getContext('2d');
+                // Background Gradient
+                const grad = ctx.createLinearGradient(0, 0, 500, 500);
+                grad.addColorStop(0, '#1e1b4b');
+                grad.addColorStop(0.5, '#312e81');
+                grad.addColorStop(1, '#0f172a');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 500, 500);
+
+                // Decorative Shapes
+                ctx.fillStyle = 'rgba(99, 102, 241, 0.15)';
+                ctx.beginPath();
+                ctx.arc(450, 50, 200, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(244, 63, 94, 0.15)';
+                ctx.beginPath();
+                ctx.arc(50, 450, 180, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Top Tag
+                ctx.fillStyle = '#f43f5e';
+                ctx.font = 'bold 16px "Plus Jakarta Sans", sans-serif';
+                ctx.fillRect(30, 30, 160, 34);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('SPECIAL PROMO', 45, 53);
+
+                // Product Card Mockup
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(40, 90, 420, 260, 20);
+                } else {
+                    ctx.rect(40, 90, 420, 260);
+                }
+                ctx.fill();
+                ctx.stroke();
+
+                // Center Product Silhouette / Icon
+                ctx.fillStyle = '#818cf8';
+                ctx.font = 'bold 70px "Font Awesome 6 Free"';
+                ctx.textAlign = 'center';
+                ctx.fillText('🛍️', 250, 220);
+
+                // Product Title Text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
+                let titleTruncated = pName.length > 32 ? pName.substring(0, 32) + '...' : pName;
+                ctx.fillText(titleTruncated.toUpperCase(), 250, 290);
+
+                // Price Tag Section
+                ctx.fillStyle = '#10b981';
+                ctx.font = 'extrabold 32px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(priceStr, 250, 400);
+
+                // Subtext Guarantee
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '14px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText('Produk • Harga • Penawaran', 250, 435);
+
+                // CTA Button
+                ctx.fillStyle = '#6366f1';
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(150, 450, 200, 40, 12);
+                } else {
+                    ctx.rect(150, 450, 200, 40);
+                }
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText('BELI SEKARANG ➔', 250, 475);
+            }
+
+            // Canvas 2: Minimalist Aesthetic Layout
+            const c2 = document.getElementById('bannerCanvas2');
+            if (c2 && c2.getContext) {
+                const ctx = c2.getContext('2d');
+                // Background Gradient
+                const grad = ctx.createLinearGradient(0, 0, 0, 500);
+                grad.addColorStop(0, '#0f172a');
+                grad.addColorStop(1, '#1e293b');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 500, 500);
+
+                // Abstract Circle Frame
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(250, 210, 130, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Icon
+                ctx.font = 'bold 65px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('✨', 250, 230);
+
+                // Category Badge
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                ctx.beginPath();
+                if (ctx.roundRect) {
+                    ctx.roundRect(170, 30, 160, 30, 15);
+                } else {
+                    ctx.rect(170, 30, 160, 30);
+                }
+                ctx.fill();
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText('PRODUCT PREVIEW', 250, 50);
+
+                // Title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px sans-serif';
+                let titleTruncated = pName.length > 30 ? pName.substring(0, 30) + '...' : pName;
+                ctx.fillText(titleTruncated, 250, 370);
+
+                // Offer Tag
+                ctx.fillStyle = '#f43f5e';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillText('DISKON KHUSUS HARI INI', 250, 400);
+
+                // Price
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'black 28px sans-serif';
+                ctx.fillText(priceStr, 250, 440);
+            }
+        }
+
+        // Main Submit Handler
+        function v4Num(v, fallback=0){ const n=Number(v); return Number.isFinite(n)?n:fallback; }
+        function v4Clamp(n,a=0,b=100){ return Math.max(a,Math.min(b,n)); }
+        function v4ScoreEconomics(eco){
+            if(!eco) return {score:0,note:'Belum ada economics'};
+            const c=v4Num(eco.contributionBeforeAds); const target=v4Num(eco.targetCPA); const price=v4Num(eco.netSales||eco.price);
+            if(price<=0) return {score:0,note:'Harga belum valid'};
+            const ratio=c/price; return {score:Math.round(v4Clamp(ratio*180)),note:`Contribution ${Math.round(ratio*100)}% dari net sales`};
+        }
+        function v4ScoreListing(d){
+            let score=30, evidence=0;
+            if(d?.titleAfter) {score+=20;evidence++;} if(d?.optimizedDescription) {score+=15;evidence++;}
+            if(Array.isArray(d?.imageGalleryTips)&&d.imageGalleryTips.length>=4){score+=15;evidence++;}
+            if(Array.isArray(d?.videoAuditTips)&&d.videoAuditTips.length>=3){score+=10;evidence++;}
+            if(d?.productWhat&&d?.targetAudience){score+=10;evidence++;}
+            return {score:v4Clamp(score),note:`${evidence}/5 sinyal listing terisi`};
+        }
+        function v4ScoreCreative(d){
+            let score=0; if(d?.script1Hook)score+=25;if(d?.script2Hook)score+=20;if(d?.imagePrompt1)score+=20;if(d?.imagePrompt2)score+=15;if(d?.captionA&&d?.captionB)score+=20;
+            return {score, note:'Kelengkapan asset kreatif'};
+        }
+        function v4ScoreOffer(d){
+            let score=20; if(d?.offerRecommendation)score+=35;if(Array.isArray(d?.riskReversalList)&&d.riskReversalList.length)score+=25;if(d?.seedingStrategy)score+=20;return {score:v4Clamp(score),note:'Offer + risk reversal + seeding'};
+        }
+        function v4BuildInsights(d){
+            const eco=v4ScoreEconomics(d.economics), listing=v4ScoreListing(d), creative=v4ScoreCreative(d), offer=v4ScoreOffer(d);
+            const manual=(d.financialInput?.evidenceNotes||'').trim();
+            const urls=[d.financialInput?.competitorUrl1,d.financialInput?.competitorUrl2,d.financialInput?.competitorUrl3].filter(Boolean);
+            const completeness=Math.round(v4Clamp(([d.url,d.productName,d.category,d.platform,d.price,d.cogs,d.economics,d.titleAfter,d.optimizedDescription,manual,...urls].filter(Boolean).length/12)*100));
+            return {listing,economics:eco,creative,offer,confidence:completeness,manual,urls};
+        }
+        function renderV4CommandCenter(d){
+            const x=v4BuildInsights(d);
+            [['Listing',x.listing],['Economics',x.economics],['Creative',x.creative],['Offer',x.offer]].forEach(([k,v])=>{const id='v4Score'+k;document.getElementById(id).textContent=Math.round(v.score)+'/100';document.getElementById(id+'Note').textContent=v.note;});
+            document.getElementById('v4Confidence').textContent=x.confidence+'%'; document.getElementById('v4ConfidenceNote').textContent=x.confidence>=80?'Data cukup lengkap':'Tambahkan evidence manual';
+            const ledger=[['URL produk',!!d.url],['Detail produk',!!d.productName],['Unit economics',!!d.economics],['Listing audit',!!d.titleAfter&&!!d.optimizedDescription],['Evidence manual',!!x.manual]];
+            document.getElementById('v4EvidenceLedger').innerHTML=ledger.map(([a,b])=>`<div class="flex justify-between gap-2"><span class="text-slate-400">${escapeHtml(a)}</span><span class="${b?'text-emerald-400':'text-amber-400'} font-bold">${b?'READY':'MISSING'}</span></div>`).join('');
+            const exp=[['A/B Hook','Uji 2 opening 2–3 detik; pertahankan body video.'],['Offer','Uji 1 offer utama tanpa mengubah kreatif.'],['Listing','Uji judul + thumbnail lalu bandingkan CTR/CVR.']];
+            document.getElementById('v4Experiments').innerHTML=exp.map((e,i)=>`<div class="p-2 rounded-lg border border-slate-800"><b class="text-indigo-300">${i+1}. ${e[0]}</b><p class="text-slate-400 mt-1">${e[1]}</p></div>`).join('');
+            const comp=x.urls.length?x.urls.map((u,i)=>`<div class="p-2 rounded-lg border border-slate-800"><b class="text-white">Kompetitor ${i+1}</b><p class="text-slate-500 truncate">${escapeHtml(u)}</p><span class="text-amber-400">Perlu verifikasi data halaman</span></div>`).join(''):`<p class="text-slate-500">Belum ada URL kompetitor.</p>`;
+            document.getElementById('v4CompetitorMatrix').innerHTML=comp;
+            const actions=[['01','Validasi evidence','Konfirmasi harga, HPP, fee, promo, rating, dan data kompetitor.'],['02','Jalankan eksperimen','Pilih 1 variabel kreatif/offer per test agar hasil terbaca.'],['03','Review economics','Bandingkan CPA aktual dengan target CPA sebelum scale.']];
+            document.getElementById('v4NextActions').innerHTML=actions.map(a=>`<div class="p-3 rounded-xl border border-slate-800 bg-slate-950"><span class="text-indigo-400 font-extrabold">${a[0]}</span><p class="font-bold text-white mt-1">${a[1]}</p><p class="text-slate-500 mt-1">${a[2]}</p></div>`).join('');
+        }
+        function saveV4Snapshot(){
+            if(!currentAnalysisData)return showToast('Belum ada audit.','info');
+            const key='admetrics_v4_history'; const h=JSON.parse(localStorage.getItem(key)||'[]');
+            h.unshift({savedAt:new Date().toISOString(),productName:currentAnalysisData.productName||'Produk',score:v4BuildInsights(currentAnalysisData),economics:currentAnalysisData.economics});
+            localStorage.setItem(key,JSON.stringify(h.slice(0,20))); showToast('Snapshot V4 tersimpan.','success'); renderV4History();
+        }
+        function renderV4History(){
+            const panel=document.getElementById('v4HistoryPanel'), list=document.getElementById('v4HistoryList'); panel.classList.remove('hidden');
+            const h=JSON.parse(localStorage.getItem('admetrics_v4_history')||'[]'); list.innerHTML=h.length?h.map((x,i)=>`<div class="flex justify-between gap-3 p-2 rounded-lg border border-slate-800"><span><b class="text-white">${escapeHtml(x.productName)}</b><span class="text-slate-500 ml-2">${new Date(x.savedAt).toLocaleString('id-ID')}</span></span><span class="text-indigo-300 font-bold">Confidence ${x.score.confidence}%</span></div>`).join(''):'<p class="text-slate-500">Belum ada snapshot.</p>';
+        }
+
+        async function handleRealtimeAnalyze(e) {
+            e.preventDefault();
+
+            const storeUrl = document.getElementById('storeUrl').value.trim();
+            let productDetails = document.getElementById('productDetailsInput').value.trim();
+            const parsedFromSlug = parseUrlDetails(storeUrl);
+            
+            if (!productDetails && parsedFromSlug && parsedFromSlug.title) {
+                productDetails = parsedFromSlug.title;
+                document.getElementById('productDetailsInput').value = productDetails;
+            }
+
+            const price = parseFloat(document.getElementById('sellingPrice').value) || 149000;
+            const cogs = parseFloat(document.getElementById('cogs').value) || 55000;
+            const category = document.getElementById('category').value;
+            const platform = document.getElementById('platform').value;
+            const isNewStore = document.getElementById('isNewStore').value === "true";
+            const budget = parseFloat(document.getElementById('monthlyBudget').value);
+
+            // Hide Dashboard & Show Loading
+            document.getElementById('resultsDashboard').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            const progressBar = document.getElementById('progressBar');
+            const loadingStep = document.getElementById('loadingStep');
+
+            progressBar.style.width = "25%";
+            loadingStep.innerText = "Mengurai data produk, meng-audit judul & gambar cover...";
+
+            // V2 financial engine
+            if (price <= 0 || cogs < 0) throw new Error('Harga/HPP tidak valid.');
+            const dailyBudget = budget / 30;
+            const dailyTesting = Math.min(dailyBudget * 0.30, 100000);
+            const financialInput = getFinancialInputs();
+            const economics = calculateUnitEconomics(financialInput);
+            const margin = economics.contributionBeforeAds;
+            const bepRoas = Number.isFinite(economics.breakEvenROAS) ? economics.breakEvenROAS.toFixed(2) : 'N/A';
+            const targetRoas = Number.isFinite(economics.targetROAS) ? economics.targetROAS.toFixed(2) : 'N/A';
+            const maxCpa = economics.maxCPA;
+            const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Math.max(num, 0));
+
+            // Generate Smart Tailored Analysis locally (or via API if key available)
+            let productNameClean = productDetails || (parsedFromSlug ? parsedFromSlug.title : "") || (category + " Premium");
+            let tailoredData = generateTailoredAnalysis(productNameClean, category, platform, price, cogs, isNewStore);
+
+            try {
+                progressBar.style.width = "65%";
+                loadingStep.innerText = "Menyusun audit deskripsi, video, profil toko & settingan iklan...";
+
+                // V3 AI Adapter: server-side Gemini, structured JSON, URL context when available.
+                if (backendOnline) {
+                    try {
+                        const aiResult = await requestV3AI({
+                            url: storeUrl,
+                            productName: productNameClean,
+                            category, platform, isNewStore, budget,
+                            financialInput, economics,
+                            source: { urlSignal: parsedFromSlug, manualDetails: productDetails },
+                            competitors: [1,2,3].map(i => document.getElementById('competitorUrl'+i)?.value.trim()).filter(Boolean),
+                            evidenceNotes: document.getElementById('evidenceNotes')?.value.trim() || ''
+                        });
+                        if (aiResult) tailoredData = { ...tailoredData, ...aiResult };
+                    } catch (apiErr) {
+                        console.warn('V3 AI unavailable; local engine retained.', apiErr);
+                        showToast('AI backend gagal. Hasil Local Engine tetap dipakai.', 'info');
+                    }
+                }
+
+                progressBar.style.width = "90%";
+                loadingStep.innerText = "Merender dashboard diagnosa audit toko & banner visual...";
+
+                // Save State
+                currentAnalysisData = {
+                    ...tailoredData,
+                    price,
+                    cogs,
+                    bepRoas,
+                    targetRoas,
+                    maxCpa,
+                    maxCpaStr: formatIDR(maxCpa),
+                    rule1Amt: formatIDR(maxCpa * 1.5),
+                    economics,
+                    financialInput: { ...financialInput,
+                        competitorUrl1: document.getElementById('competitorUrl1')?.value.trim() || '',
+                        competitorUrl2: document.getElementById('competitorUrl2')?.value.trim() || '',
+                        competitorUrl3: document.getElementById('competitorUrl3')?.value.trim() || '',
+                        evidenceNotes: document.getElementById('evidenceNotes')?.value.trim() || ''
+                    },
+                    url: storeUrl
+                };
+                renderV4CommandCenter(currentAnalysisData);
+
+                // Render Main Explanation
+                document.getElementById('scrapedTitle').innerText = tailoredData.productName;
+                document.getElementById('scrapedCategory').innerText = category + " • " + platform;
+                document.getElementById('storeExternalLink').href = storeUrl;
+
+                document.getElementById('scrapedProductWhat').innerText = tailoredData.productWhat;
+                document.getElementById('scrapedTargetAudience').innerText = tailoredData.targetAudience;
+                document.getElementById('scrapedPitfalls').innerText = tailoredData.pitfalls;
+                document.getElementById('scrapedUsp').innerText = tailoredData.usp;
+
+                // Render Audit Tab Elements
+                document.getElementById('titleBefore').innerText = `"${tailoredData.titleBefore}"`;
+                document.getElementById('titleAfter').innerText = tailoredData.titleAfter;
+
+                // Render Image Gallery Audit Grid
+                const imgGrid = document.getElementById('imageGalleryAuditGrid');
+                imgGrid.innerHTML = safeList(tailoredData.imageGalleryTips, (item) => `
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-1.5 text-indigo-300 font-bold mb-1">
+                                <i class="fa-solid ${escapeHtml(item.icon)}"></i>
+                                <span class="text-[11px]">${escapeHtml(item.slide)}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300 leading-snug">${escapeHtml(item.tip)}</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-900 text-[10px] text-slate-500 font-mono">Status: Perlu Disesuaikan</div>
+                    </div>
+                `).join('');
+
+                // Render Video Audit List
+                const videoList = document.getElementById('videoAuditTips');
+                videoList.innerHTML = safeList(tailoredData.videoAuditTips, (tip) => `
+                    <li class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-start gap-2">
+                        <i class="fa-solid fa-video text-purple-400 text-xs mt-0.5"></i>
+                        <span class="text-slate-300 leading-relaxed">${escapeHtml(tip)}</span>
+                    </li>
+                `).join('');
+
+                // Render Store Profile Audit List
+                const profileList = document.getElementById('storeProfileTips');
+                profileList.innerHTML = safeList(tailoredData.storeProfileTips, (tip) => `
+                    <li class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check text-amber-400 text-xs mt-0.5"></i>
+                        <span class="text-slate-300 leading-relaxed">${escapeHtml(tip)}</span>
+                    </li>
+                `).join('');
+
+                // Render Optimized Description
+                document.getElementById('optimizedDescription').innerText = tailoredData.optimizedDescription;
+
+                // Update Keywords on Shopee Section
+                const shopeeKwElem = document.getElementById('shopeeKeywords');
+                if (shopeeKwElem) {
+                    shopeeKwElem.innerText = `"${tailoredData.productName.toLowerCase()}", "${category.toLowerCase()}", "${tailoredData.productName.toLowerCase().split(' ')[0]} murah"`;
+                }
+
+                // Render Action Plan
+                const actionPlanContainer = document.getElementById('scrapedActionPlan');
+                actionPlanContainer.innerHTML = `
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-emerald-500/20 space-y-1.5">
+                        <span class="text-emerald-400 font-extrabold block text-xs border-b border-slate-800 pb-1">
+                            <i class="fa-solid fa-1 mr-1"></i>Revisi Judul & Visual Slide 1
+                        </span>
+                        <p class="text-slate-300 leading-relaxed">Ganti judul sesuai rekomendasi SEO & tambahkan frame garansi pada foto cover utama.</p>
+                    </div>
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-emerald-500/20 space-y-1.5">
+                        <span class="text-emerald-400 font-extrabold block text-xs border-b border-slate-800 pb-1">
+                            <i class="fa-solid fa-2 mr-1"></i>Setting Iklan Cold Start (0 Data)
+                        </span>
+                        <p class="text-slate-300 leading-relaxed">Gunakan Mode Manual pencocokan spesifik di Shopee atau Broad Targeting Lowest Cost di TikTok Ads.</p>
+                    </div>
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-emerald-500/20 space-y-1.5">
+                        <span class="text-emerald-400 font-extrabold block text-xs border-b border-slate-800 pb-1">
+                            <i class="fa-solid fa-3 mr-1"></i>Kontrol Budget & Stop Loss
+                        </span>
+                        <p class="text-slate-300 leading-relaxed">Budget tes Rp ${formatIDR(dailyTesting)}/hari. Matikan adset jika spent mencapai ${formatIDR(maxCpa * 1.5)} tanpa sales.</p>
+                    </div>
+                `;
+
+                // Render Metrics
+                document.getElementById('metricBEP').innerText = bepRoas + 'x';
+                document.getElementById('metricTargetROAS').innerText = targetRoas + 'x';
+                document.getElementById('metricMaxCPA').innerText = formatIDR(maxCpa);
+                document.getElementById('metricDailyTesting').innerText = formatIDR(dailyTesting);
+
+                // Financial Tab
+                document.getElementById('calcPrice').innerText = formatIDR(price);
+                document.getElementById('calcCogs').innerText = '- ' + formatIDR(cogs);
+                document.getElementById('calcMargin').innerText = `${formatIDR(margin)} (${((margin/price)*100).toFixed(0)}%)`;
+                document.getElementById('calcMaxCpa').innerText = formatIDR(maxCpa);
+                document.getElementById('rule1Amt').innerText = formatIDR(maxCpa * 1.5);
+                recalculateFinancials();
+
+                // Risk Reversal List & Offer
+                const listEl = document.getElementById('listRiskReversal');
+                listEl.innerHTML = safeList(tailoredData.riskReversalList, item => `<li>${escapeHtml(item)}</li>`);
+                document.getElementById('offerRecommendation').innerText = tailoredData.offerRecommendation;
+                document.getElementById('seedingStrategy').innerText = tailoredData.seedingStrategy;
+
+                // Scripts & Copy
+                document.getElementById('scriptHook1').innerText = tailoredData.script1Hook;
+                document.getElementById('scriptAgitate1').innerText = tailoredData.script1Agitate;
+                document.getElementById('scriptSolution1').innerText = tailoredData.script1Solution;
+
+                document.getElementById('scriptHook2').innerText = tailoredData.script2Hook;
+                document.getElementById('scriptUnboxing2').innerText = tailoredData.script2CloseUp;
+                document.getElementById('scriptCta2').innerText = tailoredData.script2Cta;
+
+                document.getElementById('captionA').innerText = tailoredData.captionA;
+                document.getElementById('captionB').innerText = tailoredData.captionB;
+
+                // Image Prompts
+                document.getElementById('adPrompt1').innerText = tailoredData.imagePrompt1;
+                document.getElementById('adPrompt2').innerText = tailoredData.imagePrompt2;
+
+                // Show Dashboard
+                progressBar.style.width = "100%";
+                setTimeout(() => {
+                    document.getElementById('loadingState').classList.add('hidden');
+                    document.getElementById('resultsDashboard').classList.remove('hidden');
+                    switchTab('tab-listing-audit');
+                    document.getElementById('resultsDashboard').scrollIntoView({ behavior: 'smooth' });
+                }, 300);
+
+            } catch (err) {
+                console.error("Analysis Error:", err);
+                document.getElementById('loadingState').classList.add('hidden');
+                showToast("Terjadi kesalahan analisis. Silakan periksa data input Anda.", "error");
+            }
+        }
+    </script>
+
+<script>
+const V5_KEY='admetrics_v5_os';
+const v5Default={performance:[],content:[],experiments:[],learning:[],snapshots:[]};
+let v5State=(()=>{try{return {...v5Default,...JSON.parse(localStorage.getItem(V5_KEY)||'{}')}}catch(e){return {...v5Default}}})();
+function v5Persist(){localStorage.setItem(V5_KEY,JSON.stringify(v5State));v5Render();}
+function v5Num(id){return Number(document.getElementById(id)?.value||0)||0}
+function v5Rp(n){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0)}
+function v5Esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function v5AddPerformance(){const p={date:new Date().toISOString(),gmv:v5Num('v5Gmv'),orders:v5Num('v5Orders'),spend:v5Num('v5Spend'),impressions:v5Num('v5Impressions'),clicks:v5Num('v5Clicks'),addCart:v5Num('v5AddCart'),revenue:v5Num('v5Revenue'),returns:v5Num('v5Returns')};v5State.performance.push(p);v5Persist();showToast('Data performance tersimpan.','success')}
+function v5AddContent(){const x={id:Date.now(),name:document.getElementById('v5ContentName').value,hook:document.getElementById('v5ContentHook').value,views:v5Num('v5ContentViews'),ctr:v5Num('v5ContentCtr'),orders:v5Num('v5ContentOrders'),gmv:v5Num('v5ContentGmv')};if(!x.name)return showToast('Nama video wajib diisi.','info');v5State.content.push(x);v5Persist();showToast('Konten masuk Content Lab.','success')}
+function v5AddExperiment(){const x={id:Date.now(),name:document.getElementById('v5ExpName').value,hypothesis:document.getElementById('v5ExpHypothesis').value,metric:document.getElementById('v5ExpMetric').value,guardrail:document.getElementById('v5ExpGuardrail').value,status:'PLANNED',created:new Date().toISOString()};if(!x.name||!x.metric)return showToast('Nama dan primary metric wajib.','info');v5State.experiments.push(x);v5Persist();showToast('Eksperimen dibuat.','success')}
+function v5Render(){const p=v5State.performance.reduce((a,x)=>({gmv:a.gmv+x.gmv,orders:a.orders+x.orders,spend:a.spend+x.spend,imp:a.imp+x.impressions,clicks:a.clicks+x.clicks,revenue:a.revenue+x.revenue}),{gmv:0,orders:0,spend:0,imp:0,clicks:0,revenue:0});const roas=p.spend?p.gmv/p.spend:0,ctr=p.imp?p.clicks/p.imp*100:0,cvr=p.clicks?p.orders/p.clicks*100:0,aov=p.orders?p.gmv/p.orders:0;const conf=v5State.performance.length?Math.min(100,40+v5State.performance.length*10):0;[['v5KpiGmv',v5Rp(p.gmv)],['v5KpiOrders',p.orders],['v5KpiSpend',v5Rp(p.spend)],['v5KpiRoas',roas.toFixed(2)+'x'],['v5KpiCtr',ctr.toFixed(2)+'%'],['v5KpiCvr',cvr.toFixed(2)+'%'],['v5KpiAov',v5Rp(aov)],['v5KpiConf',conf+'%']].forEach(([id,val])=>{const e=document.getElementById(id);if(e)e.textContent=val});
+const ct=document.getElementById('v5ContentTable');if(ct)ct.innerHTML=v5State.content.slice(-8).reverse().map(x=>`<div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800"><div class="font-bold text-white">${v5Esc(x.name)}</div><div class="text-[10px] text-slate-500">${v5Esc(x.hook)} • ${x.views} views • CTR ${x.ctr}% • ${x.orders} order • ${v5Rp(x.gmv)}</div></div>`).join('')||'<div class="text-slate-500">Belum ada konten.</div>';
+const et=document.getElementById('v5ExperimentTable');if(et)et.innerHTML=v5State.experiments.slice(-6).reverse().map(x=>`<div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800"><div class="font-bold text-white">${v5Esc(x.name)}</div><div class="text-[10px] text-slate-500">${v5Esc(x.metric)} • guardrail: ${v5Esc(x.guardrail||'-')} • ${x.status}</div></div>`).join('')||'<div class="text-slate-500">Belum ada eksperimen.</div>';
+const lm=document.getElementById('v5Learning');if(lm)lm.innerHTML=v5State.learning.slice(-6).reverse().map(x=>`<div class="p-3 rounded-xl bg-slate-950 border border-slate-800"><b class="text-emerald-300">${v5Esc(x.title)}</b><div class="mt-1">${v5Esc(x.detail)}</div></div>`).join('')||'<div class="text-slate-500">Belum ada learning.</div>'}
+function v5GenerateLearning(){const c=v5State.content;if(!c.length)return showToast('Isi Content Lab dulu.','info');const avg=(k)=>c.reduce((a,x)=>a+(Number(x[k])||0),0)/c.length;const top=[...c].sort((a,b)=>(b.ctr+b.orders)-(a.ctr+a.orders))[0];const l=[{title:'Top content signal',detail:`${top.name} punya kombinasi signal tertinggi di dataset saat ini: CTR ${top.ctr}% dan ${top.orders} order.`},{title:'Baseline content',detail:`Rata-rata CTR ${avg('ctr').toFixed(2)}% dari ${c.length} konten yang tercatat.`},{title:'Decision rule',detail:'Jangan menganggap pemenang final hanya dari satu metrik; cek order/GMV dan guardrail sebelum scale.'}];v5State.learning=l;v5Persist()}
+async function v5GenerateStrategy(){const actions=[];const p=v5State.performance;const c=v5State.content;if(!p.length&&!c.length)return showToast('Masukkan performance atau content data dulu.','info');const last=p[p.length-1]||{};if(last.spend&&last.gmv/last.spend<1)actions.push('Audit creative dan offer sebelum menambah spend; ROAS saat ini di bawah 1x.');if(last.impressions&&last.clicks/last.impressions<.012)actions.push('Uji ulang hook/thumbnail karena CTR saat ini di bawah 1.2%.');if(c.length){const top=[...c].sort((a,b)=>b.gmv-a.gmv)[0];actions.push(`Duplikasi angle dari ${top.name} menjadi 2 varian baru dengan satu perubahan variabel per test.`)}if(!actions.length)actions.push('Pertahankan baseline, tambah satu eksperimen terkontrol, lalu ukur primary metric + guardrail.');const el=document.getElementById('v5Actions');el.innerHTML=actions.map((x,i)=>`<div class="p-3 rounded-xl bg-slate-950 border border-slate-800"><span class="text-rose-300 font-bold">${i+1}.</span> ${v5Esc(x)}</div>`).join('')}
+function v5SaveSnapshot(){v5State.snapshots.push({at:new Date().toISOString(),state:JSON.parse(JSON.stringify({performance:v5State.performance,content:v5State.content,experiments:v5State.experiments,learning:v5State.learning}))});v5Persist();showToast('Snapshot V5 tersimpan.','success')}
+function v5ExportData(){const b=new Blob([JSON.stringify({version:'5.0',exportedAt:new Date().toISOString(),data:v5State},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='admetrics-v5-operating-system.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function v5ImportData(e){const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);v5State={...v5Default,...(j.data||j)};v5Persist();showToast('Data V5 berhasil diimport.','success')}catch(_){showToast('JSON V5 tidak valid.','info')}};r.readAsText(f)}
+document.addEventListener('DOMContentLoaded',v5Render);
+
+// ===== V6 GROWTH INTELLIGENCE LAYER =====
+const V6_KEY='admetrics_v6_state';
+let v6State=JSON.parse(localStorage.getItem(V6_KEY)||'{"rows":[],"learning":[],"snapshots":[]}');
+function v6Persist(){localStorage.setItem(V6_KEY,JSON.stringify(v6State));}
+function v6Num(v){const n=parseFloat(String(v??'').replace(/[^0-9.-]/g,''));return Number.isFinite(n)?n:0;}
+function v6NormalizeRow(r){return {date:r.date||r.Date||'',product:r.product||r.Product||'Unknown',gmv:v6Num(r.gmv||r.GMV||r.revenue),orders:v6Num(r.orders||r.Order||r.order),spend:v6Num(r.spend||r.Spend||r.ads),impressions:v6Num(r.impressions||r.Impressions),clicks:v6Num(r.clicks||r.Clicks),ctr:v6Num(r.ctr||r.CTR),cvr:v6Num(r.cvr||r.CVR),cpa:v6Num(r.cpa||r.CPA),roas:v6Num(r.roas||r.ROAS)};}
+function v6Derived(rows){const r=rows.reduce((a,x)=>{a.gmv+=x.gmv;a.orders+=x.orders;a.spend+=x.spend;a.impressions+=x.impressions;a.clicks+=x.clicks;return a;},{gmv:0,orders:0,spend:0,impressions:0,clicks:0});return {...r,roas:r.spend?r.gmv/r.spend:0,ctr:r.impressions?r.clicks/r.impressions*100:0,cvr:r.clicks?r.orders/r.clicks*100:0,aov:r.orders?r.gmv/r.orders:0};}
+function v6Fmt(n){return new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(n||0);}
+function v6Kpi(label,value){return `<div class="bg-slate-950 rounded-2xl border border-slate-800 p-3"><div class="text-[10px] uppercase text-slate-500 font-bold">${label}</div><div class="text-base font-extrabold text-white mt-1">${value}</div></div>`;}
+function v6Render(){const rows=v6State.rows;const d=v6Derived(rows);document.getElementById('v6Kpis').innerHTML=[v6Kpi('GMV','Rp '+v6Fmt(d.gmv)),v6Kpi('Orders',v6Fmt(d.orders)),v6Kpi('Spend','Rp '+v6Fmt(d.spend)),v6Kpi('ROAS',d.roas.toFixed(2)+'x'),v6Kpi('CTR',d.ctr.toFixed(2)+'%'),v6Kpi('CVR',d.cvr.toFixed(2)+'%'),v6Kpi('AOV','Rp '+v6Fmt(d.aov)),v6Kpi('Rows',v6Fmt(rows.length))].join('');
+const an=[]; if(rows.length>=2){const a=v6Derived(rows.slice(0,Math.ceil(rows.length/2))),b=v6Derived(rows.slice(Math.ceil(rows.length/2))); if(a.gmv&&((b.gmv-a.gmv)/a.gmv)<-0.15)an.push('GMV turun >15% dibanding baseline import.'); if(a.cvr&&((b.cvr-a.cvr)/a.cvr)<-0.15)an.push('CVR turun >15%; cek listing/offer/creative.'); if(a.spend&&((b.spend-a.spend)/a.spend)>0.2&&a.gmv&&((b.gmv-a.gmv)/a.gmv)<0.1)an.push('Spend naik lebih cepat daripada GMV.');} if(!rows.length)an.push('Belum ada data metrics. Import CSV untuk diagnosis.');
+const op=[]; if(d.ctr>2)op.push('CTR saat ini di atas 2%; cari creative dengan CTR tertinggi untuk re-test.'); if(d.roas>3)op.push('ROAS >3x pada dataset; pisahkan creative/produk penyumbang untuk eksperimen.'); if(d.orders>0&&d.cvr>2)op.push('Ada conversion signal; uji variasi hook tanpa mengubah offer.'); if(!op.length&&rows.length)op.push('Belum cukup evidence untuk opportunity spesifik. Tambahkan data harian/creative-level.');
+document.getElementById('v6AnomalyCount').textContent=an.length+' signal';document.getElementById('v6Anomalies').innerHTML=an.map(x=>`<div class="p-2 rounded-xl bg-rose-500/5 border border-rose-500/10">${x}</div>`).join('');document.getElementById('v6OpportunityCount').textContent=op.length+' signal';document.getElementById('v6Opportunities').innerHTML=op.map(x=>`<div class="p-2 rounded-xl bg-emerald-500/5 border border-emerald-500/10">${x}</div>`).join('');document.getElementById('v6Learning').innerHTML=(v6State.learning.length?v6State.learning: ['Learning akan muncul setelah diagnosis/eksperimen.']).slice(-5).reverse().map(x=>`<div class="p-2 rounded-xl bg-indigo-500/5 border border-indigo-500/10">${x}</div>`).join('');}
+function v6ParseCsv(t){const lines=t.trim().split(/\r?\n/).filter(Boolean);if(!lines.length)return[];const parse=s=>s.split(/,(?=(?:[^"\"]*"[^"\"]*")*[^"\"]*$)/).map(x=>x.replace(/^"|"$/g,'').trim());const h=parse(lines[0]);return lines.slice(1).map(line=>{const c=parse(line),o={};h.forEach((k,i)=>o[k]=c[i]||'');return v6NormalizeRow(o);});}
+function v6ImportCsv(e){const f=e.target.files?.[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const rows=v6ParseCsv(rd.result);v6State.rows.push(...rows);v6State.rows=v6State.rows.slice(-5000);v6State.learning.push('Imported '+rows.length+' metric rows pada '+new Date().toLocaleString('id-ID'));v6Persist();v6Render();showToast('CSV metrics berhasil diimport.','success');};rd.readAsText(f);}
+function v6RunDiagnosis(){if(!v6State.rows.length){showToast('Import metrics terlebih dahulu.','info');return;}const d=v6Derived(v6State.rows);const msg=`Diagnosis V6: ${v6State.rows.length} rows • GMV Rp${v6Fmt(d.gmv)} • ROAS ${d.roas.toFixed(2)}x • CTR ${d.ctr.toFixed(2)}% • CVR ${d.cvr.toFixed(2)}%.`;v6State.learning.push(msg);v6Persist();v6Render();showToast('Diagnosis V6 selesai.','success');}
+function v6SaveSnapshot(){v6State.snapshots.push({at:new Date().toISOString(),summary:v6Derived(v6State.rows),rows:v6State.rows.length});v6Persist();showToast('Snapshot V6 tersimpan.','success');}
+function v6ClearLearning(){v6State.learning=[];v6Persist();v6Render();}
+window.addEventListener('DOMContentLoaded',v6Render);
+</script>
+
+
+<script>
+// ===== V8 PRODUCTION WORKSPACE =====
+const V8_KEY='admetrics_v8_workspace';
+let v8State=(()=>{try{return JSON.parse(localStorage.getItem(V8_KEY))||null}catch(e){return null}})()||{workspace:{name:'',role:'viewer'},tasks:[],connectors:[{name:'TikTok Shop',status:'CONFIG NEEDED'},{name:'Shopee',status:'CONFIG NEEDED'},{name:'Meta Ads',status:'CONFIG NEEDED'},{name:'Google Ads',status:'CONFIG NEEDED'},{name:'CSV / Excel',status:'READY'}],automation:{enabled:false,rules:[{name:'Daily anomaly scan',enabled:true},{name:'Unassigned task alert',enabled:true},{name:'Owner weekly brief',enabled:false}]},audit:[],alerts:[],decisions:[]};
+function v8Persist(){localStorage.setItem(V8_KEY,JSON.stringify(v8State));}
+function v8Esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function v8StateRows(){try{return (typeof v6State!=='undefined'&&Array.isArray(v6State.rows))?v6State.rows:[]}catch(e){return []}}
+function v8Derived(){const rows=v8StateRows();return rows.reduce((a,x)=>{a.gmv+=Number(x.gmv)||0;a.orders+=Number(x.orders)||0;a.spend+=Number(x.spend)||0;a.imp+=Number(x.impressions)||0;a.clicks+=Number(x.clicks)||0;return a},{gmv:0,orders:0,spend:0,imp:0,clicks:0});}
+function v8Fmt(n){return new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(n||0)}
+function v8Log(action,detail){v8State.audit.unshift({at:new Date().toISOString(),actor:v8State.workspace.role||'viewer',action,detail});v8State.audit=v8State.audit.slice(0,100);v8Persist();}
+function v8Render(){const d=v8Derived(),roas=d.spend?d.gmv/d.spend:0,ctr=d.imp?d.clicks/d.imp*100:0,cvr=d.clicks?d.orders/d.clicks*100:0;const vals=[['GMV','Rp '+v8Fmt(d.gmv)],['Orders',v8Fmt(d.orders)],['Spend','Rp '+v8Fmt(d.spend)],['ROAS',roas.toFixed(2)+'x'],['CTR',ctr.toFixed(2)+'%'],['CVR',cvr.toFixed(2)+'%'],['Tasks',v8State.tasks.length],['Role',(v8State.workspace.role||'viewer').toUpperCase()]];document.getElementById('v8Kpis').innerHTML=vals.map(([a,b])=>`<div class="bg-slate-950 rounded-2xl border border-slate-800 p-3"><div class="text-[10px] uppercase text-slate-500 font-bold">${a}</div><div class="text-base font-extrabold text-white mt-1">${v8Esc(b)}</div></div>`).join('');document.getElementById('v8Role').textContent=(v8State.workspace.role||'viewer').toUpperCase();document.getElementById('v8StoreName').value=v8State.workspace.name||'';document.getElementById('v8RoleSelect').value=v8State.workspace.role||'viewer';
+ document.getElementById('v8TaskList').innerHTML=v8State.tasks.slice().reverse().slice(0,12).map((t,i)=>`<div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800"><div class="flex justify-between gap-2"><b class="text-white">${v8Esc(t.title)}</b><span class="text-[9px] ${t.priority==='HIGH'?'text-rose-300':'text-amber-300'}">${v8Esc(t.priority)}</span></div><div class="text-[10px] text-slate-500 mt-1">PIC: ${v8Esc(t.assignee)} • ${v8Esc(t.status)} • due ${v8Esc(t.due||'-')}</div><button onclick="v8CompleteTask(${v8State.tasks.length-1-i})" class="mt-2 text-[10px] px-2 py-1 rounded bg-emerald-600/20 text-emerald-300">Mark done</button></div>`).join('')||'<div class="text-slate-500">Belum ada task.</div>';
+ document.getElementById('v8Connectors').innerHTML=v8State.connectors.map(c=>`<div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800"><span>${v8Esc(c.name)}</span><span class="text-[9px] ${c.status==='READY'?'text-emerald-300':'text-amber-300'}">${v8Esc(c.status)}</span></div>`).join('');
+ document.getElementById('v8Automation').innerHTML=v8State.automation.rules.map(r=>`<div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800"><span>${v8Esc(r.name)}</span><span class="text-[9px] ${r.enabled?'text-emerald-300':'text-slate-500'}">${r.enabled?'ON':'OFF'}</span></div>`).join('');
+ document.getElementById('v8Audit').innerHTML=v8State.audit.slice(0,10).map(a=>`<div class="p-2 rounded-lg bg-slate-950 border border-slate-800"><div class="text-slate-300">${v8Esc(a.action)}</div><div class="text-slate-600">${new Date(a.at).toLocaleString('id-ID')} • ${v8Esc(a.actor)}</div></div>`).join('')||'<div class="text-slate-500">Belum ada audit log.</div>';
+ v8RenderAlerts();v8RenderQueue();
+}
+function v8CreateWorkspace(){const name=document.getElementById('v8StoreName').value.trim();const role=document.getElementById('v8RoleSelect').value;if(!name)return showToast('Nama workspace wajib diisi.','info');v8State.workspace={name,role};v8Log('WORKSPACE_CHANGED',`${name} • ${role}`);v8Render();showToast('Workspace V8 siap.','success');}
+function v8Can(action){const role=v8State.workspace.role||'viewer';const map={createTask:['owner','admin','marketer','creator'],approve:['owner','admin'],settings:['owner','admin'],sync:['owner','admin','marketer'],view:['owner','admin','marketer','creator','viewer']};return (map[action]||map.view).includes(role)}
+function v8AddTask(){if(!v8Can('createTask'))return showToast('Role ini tidak boleh membuat task.','info');const title=document.getElementById('v8TaskTitle').value.trim();if(!title)return showToast('Judul task wajib.','info');const t={id:Date.now(),title,assignee:document.getElementById('v8TaskAssignee').value,priority:document.getElementById('v8TaskPriority').value,due:document.getElementById('v8TaskDue').value,status:'OPEN',created:new Date().toISOString()};v8State.tasks.push(t);v8Log('TASK_CREATED',title);v8Persist();v8Render();document.getElementById('v8TaskTitle').value='';showToast('Task dibuat.','success');}
+function v8CompleteTask(index){const t=v8State.tasks[index];if(!t)return;t.status='DONE';t.completedAt=new Date().toISOString();v8Log('TASK_COMPLETED',t.title);v8Persist();v8Render();}
+function v8GenerateActions(){const rows=v8StateRows(),d=v8Derived();const alerts=[];if(!rows.length)alerts.push('Belum ada metrics nyata. Import CSV/Excel terlebih dahulu.');if(rows.length>=2){const mid=Math.ceil(rows.length/2),a=window.v6Derived?window.v6Derived(rows.slice(0,mid)):null,b=window.v6Derived?window.v6Derived(rows.slice(mid)):null;if(a&&b){if(a.gmv&&((b.gmv-a.gmv)/a.gmv)<-.15)alerts.push('GMV turun >15% vs baseline. Audit offer, creative, dan traffic.');if(a.cvr&&((b.cvr-a.cvr)/a.cvr)<-.15)alerts.push('CVR turun >15%. Audit listing, harga, social proof, dan checkout.');if(a.spend&&((b.spend-a.spend)/a.spend)>.2)alerts.push('Spend naik >20% vs baseline. Cek efficiency sebelum scale.');}}if(d.clicks&&d.orders===0)alerts.push('Clicks ada tetapi order 0. Periksa conversion path.');v8State.alerts=alerts;v8State.decisions=alerts.slice(0,5).map((x,i)=>({priority:i===0?'HIGH':'MEDIUM',text:x,requiresApproval:true}));v8Log('DECISION_SCAN',`${alerts.length} alert(s)`);v8Persist();v8Render();showToast('Decision queue diperbarui.','success');}
+function v8RenderAlerts(){const el=document.getElementById('v8Alerts');el.innerHTML=(v8State.alerts.length?v8State.alerts:['Belum ada alert aktif.']).map(x=>`<div class="p-2 rounded-xl bg-rose-500/5 border border-rose-500/10">${v8Esc(x)}</div>`).join('');}
+function v8RenderQueue(){const el=document.getElementById('v8DecisionQueue');el.innerHTML=(v8State.decisions.length?v8State.decisions:['Decision queue kosong.']).map((x,i)=>`<div class="p-2 rounded-xl bg-slate-950 border border-slate-800"><span class="text-amber-300 font-bold">${v8Esc(x.priority)}</span> ${v8Esc(x.text)} <span class="text-slate-500">• approval required</span></div>`).join('');}
+function v8ToggleAutomation(){if(!v8Can('settings'))return showToast('Hanya Owner/Admin yang boleh mengubah automation.','info');v8State.automation.enabled=!v8State.automation.enabled;v8Log('AUTOMATION_TOGGLED',v8State.automation.enabled?'ON':'OFF');v8Persist();v8Render();}
+function v8GenerateOwnerBrief(){const d=v8Derived(),roas=d.spend?d.gmv/d.spend:0;const open=v8State.tasks.filter(x=>x.status!=='DONE').length;const cards=[`Business: GMV Rp${v8Fmt(d.gmv)} dari ${v8Fmt(d.orders)} order.`, `Efficiency: spend Rp${v8Fmt(d.spend)} • ROAS ${roas.toFixed(2)}x.`, `Execution: ${open} task masih terbuka • ${v8State.alerts.length} alert aktif.`];document.getElementById('v8OwnerBrief').innerHTML=cards.map(x=>`<div class="v8brief">${v8Esc(x)}</div>`).join('');v8Log('OWNER_BRIEF_GENERATED','Summary generated');v8Persist();v8Render();}
+async function v8LoginDemo(){const username=prompt('Username demo: owner / admin / marketer / creator / viewer','owner');if(!username)return;const password=prompt('Password demo:','ChangeMe123!');if(password===null)return;try{const r=await fetch('/api/v8/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});const j=await r.json();if(!r.ok)throw new Error(j.error||'login');v8State.workspace.role=j.user.role;v8State.workspace.name=v8State.workspace.name||'Demo Workspace';v8Log('LOGIN',j.user.role);v8Persist();v8Render();showToast('Login server aktif sebagai '+j.user.role+'.','success');}catch(e){const role=['owner','admin','marketer','creator','viewer'].includes(username)?username:'viewer';v8State.workspace.role=role;v8State.workspace.name=v8State.workspace.name||'Offline Workspace';v8Log('OFFLINE_ROLE',role);v8Persist();v8Render();showToast('Server belum aktif; mode lokal '+role+' digunakan.','info');}}
+async function v8Sync(){if(!v8Can('sync'))return showToast('Role ini tidak boleh sync server.','info');try{const r=await fetch('/api/v8/state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v8State)});if(!r.ok)throw new Error('sync');const j=await r.json();if(j.state)v8State=j.state;v8Log('SERVER_SYNC','Workspace synced');v8Persist();v8Render();showToast('Workspace tersinkron ke server.','success');}catch(e){showToast('Server V8 belum aktif; data tetap tersimpan lokal.','info');}}
+async function v8RefreshAudit(){try{const r=await fetch('/api/v8/audit');if(!r.ok)throw 0;const j=await r.json();if(Array.isArray(j.audit))v8State.audit=j.audit;v8Persist();v8Render();}catch(e){v8Render();showToast('Audit server belum tersedia.','info');}}
+function v8ExportWorkspace(){const blob=new Blob([JSON.stringify({version:'8.0',exportedAt:new Date().toISOString(),workspace:v8State},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='admetrics-v8-workspace.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+window.addEventListener('DOMContentLoaded',()=>setTimeout(v8Render,100));
+</script>
+
+</body>
+</html>

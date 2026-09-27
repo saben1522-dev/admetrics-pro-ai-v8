@@ -1,0 +1,9 @@
+{
+  "name":"admetrics-pro-ai-v8",
+  "version":"8.0.0",
+  "private":true,
+  "description":"AdMetrics Pro AI V8 Production Marketing Workspace",
+  "main":"server-v8.js",
+  "scripts":{"start":"node server-v8.js"},
+  "engines":{"node":">=18"}
+}
